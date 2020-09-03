@@ -1,0 +1,26 @@
+namespace Floyd{
+	typedef long long Edge; //设定边的类型
+	Edge inf = 1e16; // 设定边不存在时候的值
+	const int V = 100 + 5;
+	int n;
+	Edge g[V][V];
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++i)
+			for(int j = 0; j <= n; ++j)
+			{
+				g[i][j] = inf;
+				if(i == j) g[i][j] = 0; //设置自环情况
+			}
+			
+	}
+	inline void addedge(int u, int v, Edge c){ g[u][v] = min(g[u][v], c);}
+	void floyd()
+	{
+		for(int k = 1; k <= n; ++k)
+			for(int i = 1; i <= n; ++i)
+				for(int j = 1; j <= n; ++j)
+					g[i][j] = min(g[i][j], g[i][k] + g[k][j]);
+	}
+}

@@ -1,0 +1,55 @@
+namespace SSSP{
+	typedef long long ll;
+	typedef pair<ll, ll> pll;
+	const int V = 1e5 + 5;	//点数
+	const int M = 2e5 + 5;	//边数
+	const ll inf = 1e14;
+	int n;
+	int head[V], num, to[2 * M], nxt[2 * M];
+	ll cap[2 * M];
+	bool vis[V];
+	priority_queue<pll , vector<pll>, greater<pll> > q;
+	void init(int _n)	//初始化点
+	{
+		for(int i = 0; i < V; ++i)
+		{
+			head[i] = 0;
+		}
+		num = 0;
+		n = _n;
+	}
+	void addedge(int u, int v, ll c)
+	{
+		nxt[++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	void Dijkstra(int s,ll* dis)
+	{
+		for(int i = 0; i <= n; ++i)
+		{
+			dis[i] = inf;
+			vis[i] = 0;
+		}			
+		dis[s] = 0;
+		q.push({0, s});
+		while(q.size())
+		{
+			int u = q.top().second;
+			ll d = q.top().first;
+			q.pop();
+			if(vis[u]) continue;
+			vis[u] = 1;
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				if(dis[v] > d + cap[e])
+				{
+					dis[v] = d + cap[e];
+					q.push({dis[v], v});
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,71 @@
+namespace Cipolla{
+	typedef long long ll;
+	ll p; //模数
+	ll w; // 二次基底的平方
+	struct QuadraticField{
+		//二次域
+		ll x, y; // x + y * sqrt(w)
+		QuadraticField operator * (QuadraticField rhs)
+		{
+			QuadraticField res = {0, 0};
+			res.x = (x * rhs.x % p + y * rhs.y % p * w % p) % p;
+			res.y = (x * rhs.y + y * rhs.x) % p;
+			return res;
+		}
+		QuadraticField operator ^ (ll k)
+		{
+			QuadraticField res = {1, 0};
+			QuadraticField a = *this;
+			while(k)
+			{
+				if(k & 1) res = res * a;
+				a = a * a;
+				k >>= 1;
+			}
+			return res;
+		}
+	};
+	void init(ll _p)
+	{
+		p = _p;
+	}
+	ll ksm(ll a, ll k)
+	{
+		ll res = 1;
+		while(k)
+		{
+			if(k & 1) res = res * a % p;
+			a = a * a % p;
+			k >>= 1;
+		}
+		return res;
+	}
+	ll Legendre(ll a) //勒让德符号
+	{
+		ll res = ksm(a, (p - 1) / 2);
+		if(res + 1 == p) return -1;
+		return 1;
+	}	
+	ll getw(ll n, ll a)
+	{
+		return ((a * a  - n) % p + p) % p;
+	}
+	//求解 x^2 = n (mod p)
+	ll cipolla(ll n)
+	{
+		if(n == 0) return 0;
+		if(p == 2) return n;
+		if(Legendre(n) == -1) return -1;
+		ll a;
+		while(1)
+		{
+			a = random(p - 1);
+			w = getw(n, a);
+			if(Legendre(w) == -1)
+				break;
+		}
+		QuadraticField ans = {a, 1};
+		ans = ans ^ ((p + 1) / 2);
+		return ans.x;
+	}
+}

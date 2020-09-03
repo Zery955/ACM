@@ -1,0 +1,85 @@
+namespace Dinic{
+	typedef long long ll;
+	const int N = 1e4 + 5; // 点数
+	const int M = 1e5 + 5; // 边数的一半
+	const ll INF = 1e17;
+	int S, T;//源点与汇点
+	int head[N], nxt[2 * M], to[2 * M], num;
+	ll cap[2 * M], w[2 * M]; // w为初始边权
+	int lev[N], q[N], cur[N]; //cur 为当前弧优化
+	void init(int _S, int _T)
+	{
+		S = _S;
+		T = _T;
+		for(int i = 0; i < N; ++i)
+		{
+			head[i] = 0;
+		}
+		num = 1;
+	}
+	void addedge(int u, int v, ll c)//加边只记录初始值w，cap值根据二分的条件进行重新建图
+	{
+		nxt[++ num] = head[u]; to[num] = v; w[num] = c; head[u] = num;
+		nxt[++ num] = head[v]; to[num] = u; w[num] = c; head[v] = num;
+	}
+	bool bfs()
+	{
+		memset(lev, 0 , sizeof lev);
+		int hh = 0, tt = 0;
+		q[0] = S; lev[S] = 1; cur[S] = head[S];
+		while(hh <= tt)
+		{	
+			int u = q[hh ++ ];
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				if(cap[e] > 0 && lev[v] == 0)
+				{
+					lev[v] = lev[u] + 1;
+					cur[v] = head[v];
+					if(v == T) return 1;
+					q[ ++ tt] = v;
+				}
+			}
+		}
+		return 0;
+	}
+	ll dfs(int u, ll limit)
+	{
+		if(u == T) return limit;
+		ll flow = 0;
+		for(int e = head[u]; e && flow < limit; e = nxt[e])
+		{
+			cur[u] = e;
+			int v = to[e];
+			if(cap[e] && lev[v] == lev[u] + 1)
+			{
+				ll f = dfs(v, min(cap[e], limit - flow));
+				if(f == 0) lev[v] = -1;
+				else
+				{
+					cap[e] -= f; cap[e ^ 1] += f; flow += f;
+				}
+			}
+		}
+		return flow;
+	}
+	void build(ll x) // 根据初始边权重新设置边的容量
+	{
+		for(int e = 2; e <= num; e += 2)
+		{
+			if(w[e] <= x) cap[e] = cap[e ^ 1] = 1;
+			else cap[e] = cap[e ^ 1] = 0;
+		}
+	}
+	ll dinic()
+	{
+		ll flow = 0;
+		while(bfs())
+		{
+			ll f;
+			while(f = dfs(S, INF)) flow += f;
+		}
+		return flow;
+	}
+}

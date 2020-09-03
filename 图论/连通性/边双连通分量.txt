@@ -1,0 +1,78 @@
+namespace E_DCC{
+	const int N = 1e5 + 5;
+	const int M = 1e5 + 5;
+	typedef long long Data;
+	int n;
+	int head[N], to[2 * M], nxt[2 * M], num;
+	Data cap[2 * M];
+	int dfn[N], low[N], idfn;
+	int dcc[N], idcc;
+	bool is_bridge[2 * M];
+	stack<int> stk;
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++i)
+		{
+			head[i] = 0;
+			dfn[i] = 0;
+		}
+		num = 1; //用于捆绑
+		idcc = 0;
+		idfn = 0;
+	}
+	void addedge(int u, int v, Data c = 1)
+	{
+		nxt[++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+		is_bridge[num] = 0;
+	}
+	void tarjan(int u, int in_edge)
+	{
+		dfn[u] = low[u] = ++idfn;
+		stk.push(u);
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(dfn[v] == 0)
+			{
+				tarjan(v, e);
+				low[u] = min(low[u], low[v]);
+				if(dfn[u] < low[v])
+				{
+					is_bridge[e] = is_bridge[e ^ 1] = 1;
+				}
+			}
+			else if(e != (in_edge ^ 1)) 
+				low[u] = min(low[u], dfn[v]);
+		}
+		if(dfn[u] == low[u])
+		{
+			idcc++;
+			int temp;
+			do{
+				temp = stk.top(); stk.pop();
+				dcc[temp] = idcc;
+			}while(temp != u);
+		}
+	}
+	void rebuild()
+	{
+		for(int i = 1; i <= n; ++i)
+			if(dfn[i] == 0) tarjan(i, -1);
+		for(int u = 1; u <= n; ++u)
+		{
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				int U = dcc[u], V = dcc[v];
+				if(U != V) // 产生树边
+				{
+					deg[V]++;
+				}
+			}
+		}
+	}
+}

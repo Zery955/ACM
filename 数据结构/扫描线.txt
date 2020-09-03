@@ -1,0 +1,89 @@
+namespace SegmentTree{
+	const int N = 1e4 + 5;
+	typedef double Data;
+	vector<Data> numsy;
+	int n;
+	struct Seg{
+		Data y1, y2, x;
+		int k;
+		bool operator < (const Seg &rhs)
+		{ 
+			return x < rhs.x;
+		}
+	}seg[2 * N];
+	struct node{
+		int l, r;
+		int cnt;
+		Data len;
+	}tr[8 * N];
+	void init()
+	{
+		numsy.clear();
+		n = 0;
+	}
+	void add(Data x1, Data y1, Data x2, Data y2)
+	{
+		numsy.push_back(y1);
+		numsy.push_back(y2);
+		seg[ ++ n] = {y1, y2, x1, 1};
+		seg[ ++ n] = {y1, y2, x2, -1};
+	}
+	void push_up(int k)
+	{
+		if(tr[k].cnt > 0) tr[k].len = numsy[tr[k].r] - numsy[tr[k].l - 1];
+		else
+		{
+			if(tr[k].l < tr[k].r)
+				tr[k].len = tr[k << 1].len + tr[k << 1 | 1].len ;
+			else tr[k].len = 0;
+		}
+	}
+	void build(int k, int l, int r)
+	{
+		tr[k] = {l, r, 0, 0};
+		if(l < r)
+		{
+			int mid = l + r >> 1;
+			build(k << 1, l, mid);
+			build(k << 1 | 1, mid + 1, r);
+			//²»ÐèÒªpush_up();
+		}
+	}
+	void modify(int k, int x, int y, int val)
+	{
+		if(x <= tr[k].l && tr[k].r <= y)
+		{
+			tr[k].cnt += val;
+			push_up(k);
+			return;
+		}
+		else
+		{
+			int mid =tr[k].l + tr[k].r >> 1;
+			if(x <= mid) modify(k << 1, x, y, val);
+			if(y > mid) modify(k << 1 | 1, x, y, val);
+			push_up(k);
+		}
+	}
+	int id(Data x)
+	{
+		return lower_bound(numsy.begin(), numsy.end(), x) - numsy.begin() + 1;
+	}
+	Data scanline()
+	{
+		sort(numsy.begin(), numsy.end());
+		numsy.erase(unique(numsy.begin(), numsy.end()), numsy.end());
+		sort(seg + 1, seg + n + 1);
+		Data res = 0;
+		build(1, 1, numsy.size() - 1);
+		for(int i = 1; i <= n; ++i)
+		{
+			if(i > 1)
+			{
+				res += (seg[i].x - seg[i - 1].x) * tr[1].len;
+			}
+			modify(1, id(seg[i].y1), id(seg[i].y2) - 1, seg[i].k);
+		}
+		return res;
+	}
+}

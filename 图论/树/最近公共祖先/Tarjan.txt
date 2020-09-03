@@ -1,0 +1,78 @@
+namespace LCA{
+	typedef int Edge;
+	const int N = 1e4 + 5; // 点数目
+	int n, rt;
+	int head[N], to[2 * N], nxt[2 * N], num;
+	Edge cap[2 * N];
+	Edge dep[N]; //广义深度(cap默认为1，可变)
+	int st[N];
+	int f[N]; //并查集
+	vector<pair<int, int> > q[N]; //查询
+	void init(int _n, int _rt = 1)
+	{
+		for(int i = 0; i < N; ++i)
+		{
+			head[i] = 0;
+			st[N] = 0;
+			f[i] = i;
+			q[i].clear();
+			dep[i] = 0;
+		}
+		num = 0;
+		n = _n;
+		rt = _rt;
+	}
+	inline void addquery(int id, int x, int y)
+	{
+		q[x].push_back({y, id});
+		q[y].push_back({x, id});
+	}
+	inline void addedge(int u, int v, Edge c = 1)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	int find(int x)
+	{
+		if(f[x] == x) return x;
+		return f[x] = find(f[x]);
+	}
+	void tarjan(int u, int fa, int* out)
+	{
+		st[u] = 1;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(v == fa) continue;
+			if(st[v] == 0)
+			{
+				tarjan(v, u, out);
+				f[v] = u;
+			}
+		}
+		for(auto i : q[u])
+		{
+			int v = i.first, id = i.second;
+			if(st[v] == 2) out[id] = find(v);
+			else if(v == u) out[id] = u;
+		}
+		st[u] = 2;
+	}
+	void dfs(int u, int fa)
+	{
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(v == fa) continue;
+			dep[v] = dep[u] + cap[e];
+			dfs(v, u);
+		}
+	}
+	void Tarjan(int* out) // 传入存询问的LCA数组
+	{
+		dfs(rt, -1);
+		tarjan(rt, -1, out);
+	}
+}

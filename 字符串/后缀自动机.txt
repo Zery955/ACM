@@ -1,0 +1,103 @@
+namespace SAM{
+	const int N = 2e6 + 5;
+	const int M = 26;
+	int ch[N][M], link[N];
+	int np;
+	int lastp;
+	int n;
+	//******************** parent 树节点数据 *************************
+	int len[N];
+	int num[N];
+	//************************* 动态开点 *************************
+	int newp()
+	{
+		++np;
+		for(int i = 0; i < M; ++i) ch[np][i] = 0;
+		num[np] = 0;
+		len[np] = 0;
+		link[np] = 0;
+		return np;
+	}
+	//************************* 获得某字符的编号 *************************
+	inline int id(char c){return c - 'a';}
+	//************************* 初始化 *************************
+	void init()//虚拟节点为 1 号点, 0号节点作为 1 号节点失配的表示
+	{
+		newp();
+		lastp = 1;
+		n = 0;
+	}
+	//************************* 插入一个新字符 *************************
+	void insert(char _c)
+	{
+		int c = id(_c);
+		int u = lastp;
+		lastp = newp(), len[lastp] = ++n, num[lastp] = 1;
+		for(; u && ch[u][c] == 0; u = link[u]) ch[u][c] = lastp;
+		if(u == 0)	//只产生一个parent树节点，且直接扩充一整条链的等价类.
+		{
+			link[lastp] = 1;
+			return;
+		}
+		int v = ch[u][c];
+		if(len[v] == len[u] + 1) //全等，没有旧的子串从该等价类分化出去.
+		{
+			link[lastp] = v;
+			return;
+		}
+		int mid;
+		mid = newp(), len[mid] = len[u] + 1, link[mid] = link[v];
+		link[v] = mid, link[lastp] = mid;
+		for(int i = 0; i < M; ++i) ch[mid][i] = ch[v][i];
+		for(int cur = u; cur && ch[cur][c] == v; cur = link[cur]) ch[cur][c] = mid;
+	}
+//******************** parent树组件 ********************
+	//#define _Parent_Tree_
+	#ifdef _Parent_Tree_
+	int head[N], to[N], nxt[N], _num;
+	inline void addedge(int u, int v)
+	{
+		nxt[++ _num] = head[u];
+		to[_num] = v;
+		head[u] = _num;
+	}
+	void dfs(int u, int fa)
+	{
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(v == fa) continue;
+			dfs(v, u);
+		//********** 回溯更新 **********
+			num[u] += num[v];
+		}
+	}
+	//******************** 构建 parent树 并 dfs ********************
+	void cal()
+	{
+		for(int i = 2; i <= np; ++i) addedge(link[i], i);
+		dfs(1, 0);
+	}
+	#endif
+//******************** 拓扑组件 ********************
+	//#define _Top_Sort_
+	#ifdef _Top_Sort_
+	int T[N], order[N];
+	void top_sort()
+	{
+		for(int i = 1; i <= np; ++i) T[len[i]]++;
+		for(int i = 1; i <= n; ++i) T[i] += T[i - 1];
+		for(int i = 1; i <= np; ++i)	order[T[len[i]]--] = i;
+	}
+	void cal()
+	{
+		top_sort();
+		for(int i = np; i >= 1; --i)
+		{
+			int cur = order[i];
+			//********** 数据更新 **********
+			num[link[cur]] += num[cur];
+		}
+	}
+	#endif
+}

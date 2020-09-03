@@ -1,0 +1,155 @@
+namespace Chain_split{
+	typedef long long Data;
+	const int N = 1e5 + 5;
+	int n, root;
+	Data a0[N], a[N];
+	int head[N], to[2 * N], nxt[2 * N], num;
+	Data cap[2 * N];
+	
+	int fa[N], dep[N], top[N], son[N], size[N];
+	int id[N], cnt;
+	
+	struct node{
+		int l, r;
+		//线段树节点设计
+		//关键数据用构造函数清零,在树链合成时候用push_up整合
+		//Data sum, tag;
+		//node(){sum = 0;tag = 0;}
+	}t[4 * N];
+	void addedge(int u, int v, Data c = 1)
+	{
+		nxt[++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	void init(int _n, int _root)
+	{
+		n = _n;
+		root = _root;
+		for(int i = 1; i <= n; ++i)
+		{
+			head[i] = 0;
+		}
+		num = 0;
+		cnt = 0;
+	}
+	void dfs1(int u, int f)
+	{
+		size[u] = 1;
+		dep[u] = dep[f] + 1;
+		fa[u] = f;
+		son[u] = 0;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(v == f) continue;
+			dfs1(v, u);
+			size[u] += size[v];
+			if(size[v] > size[son[u]]) son[u] = v;
+		}
+	}
+	void dfs2(int u, int utop)
+	{
+		top[u] = utop;
+		id[u] = ++ cnt;
+		a[cnt] = a0[u];
+		if(son[u] == 0) return;
+		dfs2(son[u], utop);
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(v == fa[u] || v == son[u]) continue;
+			dfs2(v, v);
+		}
+	}
+	void push_up(node &rt, const node &ls, const node &rs)
+	{// 线段树数据整合
+		
+	}
+	void push_up(node &rt, const node &son)
+	{// 树链查询的数据整合
+		
+	}
+	void mark(int k, Data val)
+	{//打区间修改标记
+		
+	}
+	void push_down(int k)
+	{//标记下传
+			
+	}
+	void _build(int k, int l, int r)
+	{
+		if(l == r)
+		{
+			t[k].l = l;
+			t[k].r = r;
+			//数据初始化
+			
+			return;
+		}
+		int mid = l + r >> 1;
+		_build(k << 1, l, mid);
+		_build(k << 1 | 1, mid + 1, r);
+		push_up(t[k], t[k << 1], t[k << 1 | 1]);
+		//非上传数据初始化
+		t[k].l = l; t[k].r = r;
+		
+	}
+	void build()
+	{
+		dfs1(root, 0);
+		dfs2(root, root);
+		_build(1, 1, n);
+	}
+	void _modify(int k, int x, int y, Data val)
+	{
+		if(x <= t[k].l && t[k].r <= y) return mark(k, val);
+		push_down(k);
+		int mid = t[k].l + t[k].r >> 1;
+		if(x <= mid) _modify(k << 1, x, y, val);
+		if(y > mid) _modify(k << 1 | 1, x, y, val);
+		push_up(t[k], t[k << 1], t[k << 1 | 1]);
+	}
+	node _query(int k, int x, int y)
+	{
+		if(x <= t[k].l && t[k].r <= y) return t[k];
+		push_down(k);
+		int mid = t[k].l + t[k].r >> 1;
+		if(y <= mid) return _query(k << 1, x, y);
+		else if(x > mid) return _query(k << 1 | 1, x, y);
+		else
+		{
+			node rt, L, R;
+			L = _query(k << 1, x, y);
+			R = _query(k << 1 | 1, x, y);
+			push_up(rt, L, R);
+			return rt;
+		}
+	}
+	node query(int x, int y)
+	{
+		node res;
+		while(top[x] != top[y])
+		{
+			if(dep[top[x]] < dep[top[y]]) swap(x, y);
+			push_up(res, _query(1, id[top[x]], id[x]));
+			x = fa[top[x]];
+		}
+		if(dep[x] > dep[y]) swap(x, y);
+		push_up(res, _query(1, id[x], id[y]));
+		return res;
+	}
+	void modify(int x, int y, Data val)
+	{
+		while(top[x] != top[y])
+		{
+			if(dep[top[x]] < dep[top[y]]) swap(x, y);
+			_modify(1, id[top[x]], id[x], val);
+			x = fa[top[x]];
+		}
+		if(dep[x] > dep[y]) swap(x, y);
+		_modify(1, id[x], id[y], val);
+	}
+}

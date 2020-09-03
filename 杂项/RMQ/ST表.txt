@@ -1,0 +1,32 @@
+namespace RMQ{
+	const int N = 1e5 + 5;
+	const int M = 32;
+	typedef int Data;
+	int Log[N];
+	int n;
+	Data f[N][M];
+	void init(int _n, Data* a)
+	{
+		n = _n;
+		Log[0] = -1;			
+		for(int i = 1; i <= n; ++i)
+		{
+			f[i][0] = a[i];
+			Log[i] = Log[i / 2] + 1;
+			for(int j = 1; j < M; ++j)
+				f[i][j] = 0;
+		}
+		for(int j = 1; j < M; ++j)
+		{
+			for(int i = 1; i + (1LL << j) - 1 <= n; ++i)
+			{
+				f[i][j] = max(f[i][j - 1], f[i + (1LL << (j - 1))][j - 1]);
+			}
+		}
+	}
+	inline Data query(int l, int r)
+	{
+		int k = Log[r - l + 1];
+		return max(f[l][k], f[r - (1LL << k) + 1][k]);
+	}
+}

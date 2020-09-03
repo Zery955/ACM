@@ -1,0 +1,51 @@
+namespace Binary{
+	const int N = 1e5 + 5;
+	const int M = 1e5 + 5;
+	typedef long long Data;
+	int n;
+	int head[N], to[2 * M], nxt[2 * M], num;
+	Data cap[2 * M];
+	int color[N];
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++i)
+		{
+			head[i] = 0;
+		}
+		num = 0;
+	}
+	void addedge(int u, int v, Data c = 1)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	bool dfs(int u, int co) //可以添加限制LIM
+	{
+		color[u] = co;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			//if(cap[e] <= LIM) continue;
+			if(color[v] == 0)
+			{
+				if(dfs(v, 3 - co) == 0) return 0;
+			}
+			else if(color[u] == color[v]) return 0;
+		}
+		return 1;
+	}
+	bool binary()
+	{
+		fill(color, color + N, 0);
+		bool f = 1;
+		for(int i = 1; i <= n; ++i)
+		{
+			if(color[i] == 0)
+				if(dfs(i, 1) == 0) return 0;
+		}
+		return 1;
+	}
+}

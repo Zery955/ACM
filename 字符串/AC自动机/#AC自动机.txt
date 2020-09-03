@@ -1,0 +1,81 @@
+namespace ACAM{
+	const int N = 1e6 + 5; // Trie 节点数目
+	const int M = 26; // 字符集数目
+	typedef char Data;
+	int ch[N][M];
+	int fail[N];
+	int np;
+	int q[N]; //bfs
+//********** Trie 节点维护的信息 ******************
+	int tag[N];
+
+//*************************************************
+	int newp() //动态 Trie 开点 + 初始化
+	{
+		for(int i = 0; i < M; ++i)
+		{
+			ch[np][i] = 0;
+		}	
+		fail[np] = 0;
+		tag[np] = 0;
+		return np ++;
+	}
+	void init() // 0 号点为虚拟点
+	{
+		np = 0;
+		newp();		
+	}
+	inline int id(char c)
+	{
+		return c - 'a'; // 设置字符偏移
+	}
+	void insert(char* s, int n)
+	{
+		int cur = 0;
+		for(int i = 0; i < n; ++i)
+		{
+			int c = id(s[i]);
+			if(ch[cur][c] == 0) ch[cur][c] = newp();
+			cur = ch[cur][c];
+		}
+	//*********** Trie 插入后的节点数据更新 ****************
+		tag[cur]++;
+	//******************************************************
+	}
+	void build_fail()
+	{
+		int hh = 0, tt = -1;
+		for(int i = 0; i < M; ++i)
+			if(ch[0][i]) q[++tt] = ch[0][i];
+		while(hh <= tt)
+		{
+			int u = q[hh++];
+			for(int i = 0; i < M; ++i)
+			{
+				if(ch[u][i] == 0) ch[u][i] = ch[fail[u]][i];
+				else
+				{
+					q[++tt] = ch[u][i];
+					fail[ch[u][i]] = ch[fail[u]][i];
+				}
+			}
+		}
+	}
+	int find(char *t, int n)
+	{
+		int res = 0;
+		int cur = 0;
+		for(int i = 0; i < n; ++i)
+		{
+			int c = id(t[i]);
+			cur = ch[cur][c];
+			int j = cur;
+			while(j) 
+			{
+				res += tag[j];
+				j = fail[j];
+			}
+		}
+		return res;
+	}
+}

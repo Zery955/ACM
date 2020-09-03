@@ -1,0 +1,104 @@
+namespace Dinic{
+	typedef long long ll;
+	const int N = 1e4 + 5; // 点数
+	const int M = 1e5 + 5; // 边数的一半
+	const ll INF = 1e17;
+	int S, T;//源点与汇点
+	int head[N], nxt[2 * M], to[2 * M], num;
+	ll cap[2 * M];
+	int lev[N], q[N], cur[N]; //cur 为当前弧优化
+	bool vis_s[N], vis_t[N];
+	void init(int _S, int _T)
+	{
+		S = _S;
+		T = _T;
+		for(int i = 0; i < N; ++i)
+		{
+			head[i] = 0;
+			vis_s[i] = 0;
+			vis_t[i] = 0;
+		}
+		num = 1;
+	}
+	void addedge(int u, int v, int c1, int c2 = 0)
+	{
+		nxt[++ num] = head[u]; to[num] = v; cap[num] = c1; head[u] = num;
+		nxt[++ num] = head[v]; to[num] = u; cap[num] = c2; head[v] = num;
+	}
+	bool bfs()
+	{
+		memset(lev, 0 , sizeof lev);
+		int hh = 0, tt = 0;
+		q[0] = S; lev[S] = 1; cur[S] = head[S];
+		while(hh <= tt)
+		{	
+			int u = q[hh ++ ];
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				if(cap[e] > 0 && lev[v] == 0)
+				{
+					lev[v] = lev[u] + 1;
+					cur[v] = head[v];
+					if(v == T) return 1;
+					q[ ++ tt] = v;
+				}
+			}
+		}
+		return 0;
+	}
+	ll dfs(int u, ll limit)
+	{
+		if(u == T) return limit;
+		ll flow = 0;
+		for(int e = head[u]; e && flow < limit; e = nxt[e])
+		{
+			cur[u] = e;
+			int v = to[e];
+			if(cap[e] && lev[v] == lev[u] + 1)
+			{
+				ll f = dfs(v, min(cap[e], limit - flow));
+				if(f == 0) lev[v] = -1;
+				else
+				{
+					cap[e] -= f; cap[e ^ 1] += f; flow += f;
+				}
+			}
+		}
+		return flow;
+	}
+	ll dinic()
+	{
+		ll flow = 0;
+		while(bfs())
+		{
+			ll f;
+			while(f = dfs(S, INF)) flow += f;
+		}
+		return flow;
+	}
+	void dfs(int u, bool st[], int flag)
+	{
+		st[u] = 1;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(cap[e ^ flag] && st[v] == 0)
+				dfs(v, st, flag);
+		}
+	}
+	int cal() // 计算有几条边：如果增加该边的容量则会导致最大流增加
+	{
+		dinic();
+		dfs(S, vis_s, 0);
+		dfs(T, vis_t, 1);
+		int res = 0;
+		for(int i = 2; i <= num; i += 2)
+		{
+			int v = to[i];
+			int u = to[i ^ 1];
+			if(vis_s[u] && vis_t[v] && cap[i] == 0) res ++;
+		}
+		return res;
+	}
+}

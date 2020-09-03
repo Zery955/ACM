@@ -1,0 +1,54 @@
+namespace PAM{
+/******************** 使用要点 ********************
+	# np为自动机节点数量 并采用的是 np++， 有效的范围为 [2, np - 1]
+	# 节点编号递减即为拓扑序
+*/
+	const int N = 5e5 + 5;
+	const int M = 26;
+	int n;
+	char s[N];
+	int ch[N][M];
+	int link[N];
+	int lastp;
+	int np;
+//*********** 回文树节点 维护的信息****************
+	int maxlen[N]; //最长回文后缀
+	int depth[N]; //深度
+//*************************************************
+	int newp(int newp_maxlen)
+	{
+		for(int i = 0; i < M; ++i) ch[np][i] = 0;
+		maxlen[np] = newp_maxlen;
+		return np++;
+	}
+	void init()
+	{
+		np = 0;
+		newp(0), newp(-1);
+		lastp = 1;	
+		link[0] = 1;
+		n = 0;
+		s[0] = 0;
+	}
+	int id(char c){return c - 'a';}
+	int get_link(int curp)
+	{
+		while(s[n - maxlen[curp] - 1] != s[n]) curp = link[curp];
+		return curp;
+	}
+	void insert(char C)
+	{
+		s[++ n] = C;
+		int c = id(C);
+		int curp = lastp;
+		curp = get_link(curp);
+		if(ch[curp][c] == 0)
+		{
+			int p = newp(maxlen[curp] + 2);
+			link[p] = ch[get_link(link[curp])][c];
+			depth[p] = depth[link[p]] + 1;
+			ch[curp][c] = p;
+		}
+		lastp = ch[curp][c];
+	}
+}

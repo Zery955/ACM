@@ -1,0 +1,51 @@
+namespace Kth_min_clique{
+	const int N = 100 + 5;
+	typedef bitset<N> BIT;
+	typedef long long Data;
+	struct node{
+		Data val;
+		int h; //当前集合中最大编号点
+		BIT b;
+		bool operator<(const node& rhs) const{return val > rhs.val;}
+	};
+	Data w[N]; // 点权
+	BIT ch[N]; //邻接
+	priority_queue<node> q;
+	int n;
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 1; i <= n; ++i)
+		{
+			ch[i].reset();
+		}
+	}
+	inline void addedge(int u, int v){ch[u][v] = 1;}
+	Data kth_min_clique(int k)
+	{
+		Data res = -1;
+		q.push({0, 0, 0});
+		while(q.size())
+		{
+			node temp = q.top(); q.pop();
+			if(k == 1)
+			{
+				res = temp.val;
+				break;
+			}
+			k--;
+			BIT b = temp.b;
+			for(int i = temp.h + 1; i <= n; ++i)
+			{
+				if(b[i] == 0 && (ch[i] & b) == b)
+				{
+					b[i] = 1;
+					q.push({temp.val + w[i], i, b});
+					b[i] = 0;
+				}
+			}
+		}
+		while(q.size()) q.pop();
+		return res;
+	}
+}

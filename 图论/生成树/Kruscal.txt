@@ -1,0 +1,47 @@
+namespace MST{
+	const int N = 1e3 + 5;
+	const int M = 1e6 + 5;
+	typedef long long Data;
+	int fa[N];
+	int m;
+	struct edge{
+		int p1, p2;
+		Data cap;
+		bool operator<(edge & a)
+		{
+			return cap < a.cap;
+		}
+	}e[M];
+	void init()
+	{
+		for(int i = 0; i < N; ++i)
+		{
+			fa[i] = i;
+		}
+		m = 0;
+	}
+	void addedge(int u, int v, Data c = 1)
+	{
+		e[++m] = {u, v, c};
+	}
+	int find(int x)
+	{
+		if(fa[x] == x) return x;
+		return fa[x] = find(fa[x]);
+	}
+	Data kruscal()
+	{
+		Data res = 0.0;
+		sort(e + 1, e + m + 1);
+		for(int i = 1; i <= m; ++i)
+		{
+			int p1 = e[i].p1, p2 = e[i].p2;
+			Data cap = e[i].cap;
+			int r1 = find(p1), r2 = find(p2);
+			if(r1 == r2) continue;
+			res += cap;
+			fa[r2] = r1;
+		}
+		return res;
+	}
+}

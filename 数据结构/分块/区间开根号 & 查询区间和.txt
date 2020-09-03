@@ -1,0 +1,80 @@
+namespace Block{
+	typedef long long ll;
+	const int N = 5e4 + 5;
+	int SIZE; //块的大小
+	int blockid[N];
+	ll a[N];// 线性维护的数据
+	int n;
+	struct node{
+		//块状维护的数据
+		ll sum;
+	}b[N];
+	void init(int _n)
+	{
+		n = _n;
+		SIZE = sqrt(n);
+		for(int i = 1; i <= n; ++i) //块编号初始化
+		{
+			blockid[i] = (i - 1) / SIZE + 1;
+			a[i] = 0;
+		}
+		for(int i = 1; i <= n; i += SIZE) //块内数据初始化
+		{
+			b[blockid[i]].sum = 0;
+		}
+	}
+	void build() // 建立分块
+	{
+		for(int i = 1; i <= n; ++i)
+		{
+			b[blockid[i]].sum += a[i];
+		}
+	}
+	inline void modifysingle(int x)
+	{
+		if(a[x] == 1) return;
+		int B = blockid[x];
+		b[B].sum -= a[x];
+		a[x] = sqrt(a[x]);
+		b[B].sum += a[x];
+	}
+	void modifyblock(int x)
+	{
+		if(b[x].sum == SIZE) return;
+		int l = (x - 1) * SIZE + 1;
+		int r = l + SIZE - 1;
+		for(int i = l; i <= r; ++i)	modifysingle(i);
+	}
+	void modify(int l, int r) // 区间修改
+	{
+		int B1 = blockid[l];
+		int B2 = blockid[r];
+		if(B1 == B2)
+		{
+			for(int i = l; i <= r; ++i) modifysingle(i);
+		}
+		else
+		{
+			for(int i = l; blockid[i] == B1; ++i) modifysingle(i);
+			for(int i = r; blockid[i] == B2; --i) modifysingle(i);
+			for(int i = B1 + 1; i <= B2 - 1; ++i) modifyblock(i);
+		}
+	}
+	ll query(int l, int r) //区间询问
+	{
+		int B1 = blockid[l];
+		int B2 = blockid[r];
+		ll res = 0;
+		if(B1 == B2)
+		{
+			for(int i = l; i <= r; ++i) res += a[i];
+		}
+		else
+		{
+			for(int i = l; blockid[i] == B1; ++i) res += a[i];
+			for(int i = r; blockid[i] == B2; --i) res += a[i];
+			for(int i = B1 + 1; i <= B2 - 1; ++i) res += b[i].sum;
+		}
+		return res;
+	}
+}

@@ -1,0 +1,63 @@
+struct Trie{
+	static const int N = 1e5 + 5;
+	static const int M = 2;
+	static const int MAXBIT = 31;
+	typedef int Data;
+	int idn;
+	//-------------------- Tire 节点数据 --------------------
+	// # 特别注意开空间要 * (MAXBIT + 1)
+	int tr[N * (MAXBIT + 1)][M], cnt[N * (MAXBIT + 1)][M];
+	
+	int newp()
+	{
+		idn++;
+		for(int i = 0; i < M; ++i)
+		{
+			tr[idn][i] = 0;
+			cnt[idn][i] = 0;
+		}
+		return idn;
+	}
+	void init()
+	{
+		idn = 0;
+		for(int i = 0; i < M; ++i)
+		{
+			tr[0][i] = 0;
+			cnt[0][i] = 0;
+		}
+	}
+	void insert(Data x)
+	{
+		int cur = 0;
+		for(int i = MAXBIT; i >= 0; --i)
+		{
+			int bit = x >> i & 1;
+			if(tr[cur][bit] == 0) tr[cur][bit] = newp();
+			cnt[cur][bit] ++;
+			cur = tr[cur][bit];
+		}
+	}
+	bool find(Data x)
+	{
+		int cur = 0;
+		for(int i = MAXBIT; i >= 0; --i)
+		{
+			int bit = x >> i & 1;
+			if(cnt[cur][bit] == 0) return 0;
+			cur = tr[cur][bit];
+		}
+		return 1;
+	}
+	void erase(Data x)
+	{
+		if(find(x) == 0) return;//#如果不存在就不管它
+		int cur = 0;
+		for(int i = MAXBIT; i >= 0; --i)
+		{
+			int bit = x >> i & 1;
+			cnt[cur][bit] --;
+			cur = tr[cur][bit];
+		}
+	}
+};

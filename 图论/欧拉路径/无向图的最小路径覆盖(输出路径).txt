@@ -1,0 +1,96 @@
+namespace Euler{
+	/* 思路
+	 * 一个连通块不存在奇度点那么直接欧拉回路覆盖
+	 * 一个连通块只存在2个奇度点那么直接欧拉路径覆盖
+	 * 如果存在2个以上的奇度点设为 x, 那么一共需要 x / 2条欧拉路径来覆盖
+	 * 处理方法为 x - 2 个奇度点相邻配对连边(虚边)构成半欧拉图直接跑欧拉路径算法
+	 * 通过虚边来分割路径即可
+	 */
+	const int N = 1e5 + 5;
+	const int M = 2e5 + 5;
+	int head[N], to[M * 2], nxt[M * 2], num;
+	bool f[M * 2]; // f = 0 为虚边
+	int n, s, t;
+	int d[N];
+	bool vis[M * 2];
+	vector<int> path; // 用来暂存单条路径
+	vector<vector<int> > cover; // 覆盖结果
+	
+	vector<int> odd;
+	bool block[N];
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++ i)
+		{
+			head[i] = 0;
+			d[i] = 0;
+			block[i] = 0;
+		}
+		num = 1;
+		cover.clear();
+	}
+	void addedge(int u, int v, int _f)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		vis[num] = 0;
+		f[num] = _f;
+		head[u] = num;
+		d[v] ++;
+	}
+	void dfs_block(int u) // 遍历连通块
+	{
+		if(d[u] % 2) odd.push_back(u);
+		block[u] = 1;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(block[v] == 0) dfs_block(v);
+		}
+	}
+	void dfs(int u)
+	{
+		for(int e = head[u]; e; e = head[u])
+		{
+			int v = to[e];
+			int ff = f[e];
+			head[u] = nxt[e];
+			if(vis[e]  || vis[e ^ 1]) continue;
+			vis[e] = 1;
+			int dir = e % 2 == 0 ? 1 : -1;
+			dfs(v);
+			if(ff)
+				path.push_back(- e / 2 * dir);
+			else if(path.size())
+			{
+				cover.push_back(path);
+				path.clear();
+			}
+		}
+	}
+	void euler()
+	{
+		for(int i = 1; i <= n; ++i)
+		{
+			if(block[i] == 0) //新的连通块
+			{
+				odd.clear();
+				dfs_block(i);
+				int s = i;
+				if(odd.size() >= 2)
+				{
+					for(int i = 2; i < odd.size(); i += 2)
+					{
+						addedge(odd[i], odd[i + 1], 0);
+						addedge(odd[i + 1], odd[i], 0);
+					}
+					s = odd[0];
+				}
+				path.clear();
+				dfs(s);
+				if(path.size()) cover.push_back(path);
+			}
+		}
+	}
+}

@@ -1,0 +1,59 @@
+namespace Trie{
+	const int N = 1e6 + 5;
+	const int Bit = 31;
+	const int M = 2;
+	int ch[N * (Bit + 1)][M];
+	set<int> st[N];
+	int idn, n;
+	int newp()
+	{
+		++idn;
+		for(int i = 0; i < M; ++i) ch[idn][i] = 0;
+		return idn;
+	}
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 1; i <= n; ++i)
+		{
+			newp();
+			st[i].clear();
+		}	
+	}
+
+	void insert(int rt, int x)
+	{
+		int cur = rt;
+		for(int i = Bit; i >= 0; --i)
+		{
+			int bit = x >> i & 1;
+			if(ch[cur][bit] == 0) ch[cur][bit] = newp();
+			cur = ch[cur][bit];
+		}
+		st[rt].insert(x);
+	}
+	int query(int rt, int x)
+	{
+		int cur = rt;
+		int res = 0;
+		for(int i = Bit; i >= 0; --i)
+		{
+			int bit = x >> i & 1;
+			if(ch[cur][!bit])
+			{
+				res |= 1 << i;
+				cur = ch[cur][!bit];
+			}
+			else cur = ch[cur][bit];
+		}
+		return res;
+	}
+	int merge(int r1, int r2)
+	{
+		if(!r1) return r2;
+		if(!r2) return r1;
+		ch[r1][0] = merge(ch[r1][0], ch[r2][0]);
+		ch[r1][1] = merge(ch[r1][1], ch[r2][1]);
+		return r1;
+	}
+}

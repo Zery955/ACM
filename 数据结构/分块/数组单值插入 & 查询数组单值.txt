@@ -1,0 +1,77 @@
+//**直接用rope实现即可**
+//**#include<ext/rope>**
+//**using namespace __gnu_cxx;**
+namespace Block{
+	typedef long long ll;
+	const int N = 1e5 + 5;
+	int SIZE; //块的大小
+	int blockid[N];
+	ll a[N];// 线性维护的数据
+	int n;
+	struct node{
+		//块状维护的数据
+		//**
+		vector<int> va;
+		
+	}b[N];
+	void init(int _n)
+	{
+		n = _n;
+		SIZE = sqrt(n);
+		for(int i = 1; i <= n; ++i) //块编号初始化
+		{
+			blockid[i] = (i - 1) / SIZE + 1;
+			a[i] = 0;
+		}
+		for(int i = 1; i <= n; i += SIZE) //块内数据初始化
+		{//**
+			b[blockid[i]].va.clear();
+		}
+	}
+	void build() // 建立分块数据
+	{
+		for(int i = 1; i <= n; ++i)
+		{//**
+			b[blockid[i]].va.push_back(a[i]);
+		}
+	}
+	void rebuild() // 重建分块数据
+	{
+		int cnt = 0;
+		for(int i = 1; i <= n; i += SIZE)
+		{
+			for(auto j: b[blockid[i]].va)
+				a[ ++ cnt] = j;
+			b[blockid[i]].va.clear();
+		}
+		SIZE = sqrt(n);
+		for(int i = 1; i <= n; ++ i) blockid[i] = (i - 1) / SIZE + 1;
+		for(int i = 1; i <= n; ++ i) b[blockid[i]].va.push_back(a[i]);
+	}
+	void modifyblock(int i, int x, int y) //修改块
+	{//**
+		auto &v = b[i].va;
+		v.insert(v.begin() + x - 1, y);
+		if(v.size() > 2 * SIZE) rebuild(); //*定期重构的阈值
+										   //*随机数据阈值高些，人造数据阈值低些
+	}
+	pii findblock(int x)//确定坐标
+	{
+		int i = 1;
+		while(x > b[i].va.size())
+		{
+			x -= b[i ++].va.size();
+		}
+		return {i, x};
+	}
+	void modify(int x, int c) //修改在a[x]前插入c
+	{
+		pii pos = findblock(x);
+		modifyblock(pos.first, pos.second, c);
+	}
+	ll query(int x) //询问a[x];
+	{
+		pii pos = findblock(x);
+		return b[pos.first].va[pos.second - 1];
+	}
+}

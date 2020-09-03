@@ -1,0 +1,85 @@
+namespace Costflow{
+	//一般取汇点为所用到的点的最后一个以提高初始化效率
+	const int N = 1e5 + 5;
+	const int M = 1e5 + 5;
+	typedef long long Data;
+	const Data inf = 0x3f3f3f3f;
+	int n;
+	int head[N], to[2 * M], nxt[2 * M], num;
+	Data cap[2 * M], cost[2 * M];
+	int S, T;
+	queue<int> q;
+	bool vis[N];
+	Data dist[N], incf[N];
+	int pre[N];
+	void init(int _S, int _T)
+	{
+		S = _S;
+		T = _T;
+		for(int i = 0; i <= T; ++i) // 注意常数
+		{
+			head[i] = 0;
+		}
+		num = 1;
+	}
+	void addedge(int u, int v, Data Cap, Data Cost)
+	{
+		nxt[ ++ num] = head[u];
+		cap[num] = Cap; cost[num] = Cost; to[num] = v;
+		head[u] = num;
+		
+		nxt[ ++ num] = head[v];
+		cap[num] = 0; cost[num] = - Cost; to[num] = u;
+		head[v] = num;
+	}
+	bool spfa()
+	{
+		fill(vis, vis + T + 1, 0); //注意常数
+		fill(dist, dist + T + 1, inf);//注意常数
+		q.push(S);
+		dist[S] = 0;
+		vis[S] = 1;
+		incf[S] = inf;
+		while(q.size())
+		{
+			int u = q.front(); q.pop();
+			vis[u] = 0;
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				
+				if(cap[e] == 0) continue;
+				int v = to[e];			
+				if(dist[u] + cost[e] < dist[v])
+				{
+					dist[v] = dist[u] + cost[e];
+					incf[v] = min(incf[u], cap[e]);
+					pre[v] = e;
+					if(vis[v] == 0)
+					{
+						vis[v] = 1;
+						q.push(v);
+					}
+				}
+			}
+		}
+		return dist[T] != inf;
+	}
+	pair<Data, Data> costflow()
+	{
+		pair<Data, Data> res = {0, 0};
+		while(spfa())
+		{
+			int u = T;
+			while(u != S)
+			{
+				int e = pre[u];
+				cap[e] -= incf[T];
+				cap[e ^ 1] += incf[T];
+				u = to[e ^ 1];
+			}
+			res.first += incf[T];
+			res.second += dist[T] * incf[T];
+		}
+		return res;//pair<最大流, 最小费>
+	}
+}

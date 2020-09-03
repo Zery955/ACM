@@ -1,0 +1,20 @@
+int Maximal(char *s, int n)
+{	//下标从0开始
+	int i = 0, j = 1;
+	int k = 0;
+	while(i < n && j < n && k < n)
+	{
+		int ii = (i + k) % n;
+		int jj = (j + k) % n;
+		if(s[ii] == s[jj]) k++;
+		else 
+		{
+			if(s[ii] < s[jj]) i += k + 1;
+			else j += k + 1;
+			if(i == j) j++;
+			k = 0;
+		}
+	}
+	//返回从起始位置的偏移
+	return min(i, j);
+}

@@ -1,0 +1,60 @@
+namespace Euler{
+	typedef long long ll;
+	ll phi(ll n)
+	{
+		/*
+		根据定义求欧拉函数
+		O(sqrt(N))
+		*/
+		ll res = n;
+		for(ll i = 2; i * i <= n; ++i)
+		{
+			if(n % i == 0)
+			{
+				res = res / i * (i - 1);
+				while(n % i == 0) n /= i;
+			}
+		}
+		if(n > 1) res = res / n * (n - 1);
+		return res;
+	}
+	ll ksm(ll a, ll b, ll Mod)
+	{
+		//二进制
+		ll _phi = phi(Mod);
+		ll res = 1;
+		if(b >= _phi) b = b % _phi + _phi;
+		while(b)
+		{
+			if(b & 1) res = res * a % Mod;
+			a = a * a % Mod;
+			b >>= 1;
+		}
+		return res;
+	}
+	ll ksm(ll a, char *_b, int n, ll Mod)
+	{
+		//十进制(注意字符串下标从1开始)
+		ll res = 1;
+		ll b = 0;
+		ll _phi = phi(Mod);
+		bool flag = 0;
+		for(int i = 1; i <= n; ++i) 
+		{
+			b = b * 10 + _b[i] - '0';
+			if(b > _phi)
+			{
+				flag = 1;
+				b %= _phi;
+			}
+		}
+		if(flag) b += _phi;
+		while(b)
+		{
+			if(b & 1) res = res * a % Mod;
+			a = a * a % Mod;
+			b >>= 1;
+		}
+		return res;
+	}
+}

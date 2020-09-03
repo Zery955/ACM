@@ -1,0 +1,70 @@
+namespace Hanging_line{
+	const int N = 1e3 + 5;
+	const int M = 1e3 + 5;
+	//时间复杂度: O(n * m)
+	typedef int Data;
+	int n, m;
+	Data a[N][M];
+	int L[N][M], R[N][M]; //位置合法格点左右延申边界
+	int l[N][M], r[N][M]; //位置悬线左右延申边界
+	int h[N][M];//位置悬线高度
+	inline bool good(int x, int y) //合法点判定
+	{
+		return x >= 1 && x <= n && y >= 1 && y <= m && a[x][y] == 1;
+	}
+	void init(int _n, int _m) //以正常矩阵存储
+	{
+		n = _n;
+		m = _m;
+		for(int i = 1; i <= n; ++i)
+			for(int j = 1; j <= m; ++j)
+				a[i][j] = 0;
+	}
+	inline void set(int x, int y, Data c){a[x][y] = c;}
+	int max_sub_rectangle()
+	{
+		int res = 0;
+		for(int i = 1; i <= n; ++i)
+		{
+			for(int j = 1; j <= m; ++j)
+			{
+				if(a[i][j] == 0) continue;
+				L[i][j] = good(i, j - 1) ? L[i][j - 1] : j;
+			}
+			for(int j = m; j >= 1; --j)
+			{
+				if(a[i][j] == 0) continue;
+				R[i][j] = good(i, j + 1) ? R[i][j + 1] : j;
+			}
+		}
+		for(int i = 1; i <= n; ++i)
+		{
+			for(int j = 1; j <= m; ++j)
+			{
+				if(a[i][j] == 0) continue;
+				if(good(i - 1, j))
+				{
+					h[i][j] = h[i - 1][j] + 1;
+					l[i][j] = max(l[i - 1][j], L[i][j]);
+					r[i][j] = min(r[i - 1][j], R[i][j]);
+				}
+				else
+				{
+					h[i][j] = 1;
+					l[i][j] = L[i][j];
+					r[i][j] = R[i][j];
+				}
+			}
+		}
+		for(int i = 1; i <= n; ++i)
+		{
+			for(int j = 1; j <= m; ++j)
+			{
+				if(a[i][j] == 0) continue;
+				int s = (r[i][j] - l[i][j] + 1) * h[i][j];
+				if(s > res) res = s;
+			}
+		}
+		return res;
+	}
+}

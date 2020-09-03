@@ -1,0 +1,25 @@
+long long exgcd(long long a, long long b, long long &x, long long &y) // ax + by = gcd(a b);
+{
+	if(b == 0)
+	{
+		x = 1;
+		y = 0;
+		return a;
+	}
+	long long res = exgcd(b, a % b, y, x);
+	y -=  a / b * x;
+	return res;
+}
+void exgcd(long long a, long long b, long long c, long long &x, long long &y) // ax + by = c;
+{
+	long long d, t;
+	d = abs(exgcd(a, b, x, y));
+	long long a2 = a / d, b2 = b / d, c2 = c / d;
+	x *= c2; y *= c2;
+	// 调整解的符号 这个是暴力 写的时候加速一下
+	// while(y >= 0)		
+	// {
+		// x += b2;
+		// y -= a2;
+	// }
+}

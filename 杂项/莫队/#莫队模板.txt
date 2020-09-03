@@ -1,0 +1,32 @@
+namespace Mo{
+	const int N = 3e4 + 5;
+	const int Q = 2e5 + 5;
+	int n, m, SIZE;// 数列范围，询问个数，块大小
+	int blockid[N];
+	struct Query{
+		int id, l, r;
+	}q[Q]; // 询问
+	int cmp(Query a, Query b) //奇偶排序优化
+	{
+		return (blockid[a.l] ^ blockid[b.l]) ? blockid[a.l] < blockid[b.l] : 
+											   ((blockid[a.l] & 1) ? a.r < b.r : a.r > b.r);
+	}
+	void init(int _n)
+	{
+		n = _n;
+		m = 0;
+		SIZE = sqrt(n);
+		for(int i = 1; i <= n; ++ i)
+		{
+			blockid[i] = (i - 1) / SIZE + 1;
+		}
+	}
+	inline void addquery(int i, int l, int r)
+	{ 
+		q[ ++ m] = {i, l, r};
+	}
+	void mo()
+	{
+		sort(q + 1, q + m + 1, cmp);
+	}
+}

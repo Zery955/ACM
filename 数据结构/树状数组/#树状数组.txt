@@ -1,0 +1,31 @@
+namespace Bit{
+	const int N = 1e6 + 5;
+	ll t[N];
+	int n;
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++ i) t[i] = 0;
+	}
+	void _modify(int x, ll c)
+	{
+		for(int i = x; i <= n; i += i & - i)
+		{
+			t[i] += c;
+		}
+	}
+	ll query(int x) // 单点询问
+	{
+		ll res = 0;
+		for(int i = x; i > 0; i -= i & - i)
+		{
+			res += t[i];
+		}
+		return res;
+	}
+	void modify(int l, int r, ll c) // 区间修改
+	{
+		_modify(l, c);
+		_modify(r + 1, - c);
+	}
+}

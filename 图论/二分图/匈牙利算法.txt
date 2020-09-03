@@ -1,0 +1,57 @@
+namespace Hungarian{
+	//最大匹配 = 最小点覆盖 = 总点数 - 最大独立集 = 总点数 - 最小路径覆盖
+	const int N = 1e5 + 5;
+	const int M = 1e5 + 5;
+	int n; // 左部分点
+	int head[N], to[2 * M], nxt[2 * M], num;
+	int match[N];
+	bool vis[N];
+	int max_match;
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i < N; ++i)
+		{
+			head[i] = 0;
+			match[i] = 0;
+		}
+		num = 0;
+	}
+	inline int L(int x){return x;}
+	inline int R(int x){return x + n;}
+	void addedge(int u, int v)
+	{
+		u = L(u);
+		v = R(v);
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		head[u] = num;
+	}
+	bool dfs(int u)
+	{
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(vis[v] == 0)
+			{
+				vis[v] = 1;
+				if(match[v] == 0 || dfs(match[v]))
+				{
+					match[v] = u;
+					return 1;
+				}
+			}
+		}
+		return 0;
+	}
+	int hungarian()
+	{
+		max_match = 0;
+		for(int i = 1; i <= n; ++i)
+		{
+			fill(vis, vis + N, 0);
+			max_match += dfs(L(i));
+		}
+		return max_match;
+	}
+}

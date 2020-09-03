@@ -1,0 +1,54 @@
+namespace LCS{
+	const int N = 100 + 5;
+	const int M = 26;
+	char *a, *b; //自行读入
+	int na, nb;
+	int f[N][N];//最长公共子序列长度
+	int locA[N][M];//前 i 个字符中 ('a' + j)出现的最大位置坐标
+	int locB[N][M];//同上
+	set<string> st;//存储最长公共子序列
+	void init(char *_a, int _na, char * _b, int _nb) //下标从1开始
+	{
+		a = _a; b = _b;
+		na = _na; nb = _nb;
+		st.clear();
+		for(int i = 1; i <= na; ++i)
+			for(int j = 1; j <= nb; ++j)
+			{
+				f[i][j] = max(f[i - 1][j], f[i][j - 1]);
+				if(a[i] == b[j]) f[i][j] = f[i - 1][j - 1] + 1;
+			}
+		for(int i = 1; i <= na; ++i)
+		{
+			for(int j = 0; j < M; ++j)
+				locA[i][j] = locA[i - 1][j];
+			locA[i][a[i] - 'a'] = i;
+		}
+		for(int i = 1; i <= nb; ++i)
+		{
+			for(int j = 0; j < M; ++j)
+				locB[i][j] = locB[i - 1][j];
+			locB[i][b[i] - 'a'] = i;
+		}
+	}
+	void dfs(int ia, int ib, int len, string x)
+	{
+		if(len == 0)
+		{
+			reverse(all(x));
+			st.insert(x);
+			return;
+		}
+		for(int ch = 0; ch < M; ++ch)
+		{
+			int la = locA[ia][ch];
+			int lb = locB[ib][ch];
+			if(f[la][lb] != len) continue;
+			dfs(la - 1, lb - 1, len - 1, x + (char)('a' + ch));
+		}
+	}
+	void lcs()
+	{
+		dfs(na, nb, f[na][nb], "");
+	}
+}

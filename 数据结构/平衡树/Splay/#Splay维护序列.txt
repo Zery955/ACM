@@ -1,0 +1,209 @@
+namespace Splay{
+	const int N = 1e6 + 5;
+	typedef long long ll;
+	const ll INF = 1e17;
+	ll* a; int n;
+	int rt, np;
+	struct node{
+		int ch[2];int fa;ll val;
+		int cnt;int sz;
+		ll sum, tmin;
+		ll tag_sum;int tag_reverse;
+	}t[N];
+	void newp(int ls, int rs, int fa, ll val, int cnt, int sz, ll sum, ll tmin, ll tag_sum, int tag_reverse)
+	{
+		++ np;
+		t[np].ch[0] = ls; t[np].ch[1] = rs; t[np].fa = fa; t[np].val = val;
+		t[np].cnt = cnt; t[np].sz = sz;
+		t[np].sum = sum;
+		t[np].tag_sum = tag_sum; t[np].tmin = tmin; t[np].tag_reverse = tag_reverse;
+	}
+	inline void push_up(int u)
+	{
+		
+		t[u].sz = t[u].cnt;
+		t[u].sum = t[u].val;
+		t[u].tmin = t[u].val;
+		if(t[u].ch[0])
+		{
+			t[u].sz += t[t[u].ch[0]].sz;
+			t[u].sum += t[t[u].ch[0]].sum; 
+			t[u].tmin = min(t[u].tmin, t[t[u].ch[0]].tmin);
+		}
+		if(t[u].ch[1])
+		{
+			t[u].sz += t[t[u].ch[1]].sz;
+			t[u].sum += t[t[u].ch[1]].sum;
+			t[u].tmin = min(t[u].tmin, t[t[u].ch[1]].tmin);
+		}
+	}
+	inline void mark_add(int u, ll val)
+	{
+		t[u].tag_sum += val;
+		t[u].val += val;
+		t[u].sum += val * t[u].sz;
+		t[u].tmin += val;
+	}
+	inline void mark_reverse(int u)
+	{
+		t[u].tag_reverse ^= 1;
+		swap(t[u].ch[0], t[u].ch[1]);
+	}
+	inline void push_down(int u)
+	{
+		/* **** 标记下传 ****/
+		if(u && t[u].tag_sum)
+		{
+			mark_add(t[u].ch[0], t[u].tag_sum);
+			mark_add(t[u].ch[1], t[u].tag_sum);
+			t[u].tag_sum = 0;
+		}
+		if(u && t[u].tag_reverse)
+		{
+			mark_reverse(t[u].ch[0]);
+			mark_reverse(t[u].ch[1]);
+			t[u].tag_reverse = 0;
+		}
+	}
+	void push_down_from_rt(int u) 
+	{
+		// 没有通过kth() 来获取编号的话标记可能没有下传
+		// 需要手动下传一次
+		if(u == 0) return;
+		push_down_from_rt(t[u].fa);
+		push_down(u);
+	}
+	inline bool get(int x){return x == t[t[x].fa].ch[1];}
+	inline void rotate(int x)
+	{
+		int y = t[x].fa, z = t[y].fa, son = get(x);
+		t[y].ch[son] = t[x].ch[son ^ 1];
+		t[t[x].ch[son ^ 1]].fa = y;
+		t[x].ch[son ^ 1] = y;
+		t[y].fa = x;
+		t[x].fa = z;
+		if(z) t[z].ch[y == t[z].ch[1]] = x;
+		push_up(y);
+		push_up(x);
+	}
+	void splay(int u, int v = 0)
+	{
+		for(int f = t[u].fa; (f = t[u].fa) != v; rotate(u))
+		{
+			if(t[f].fa != v) rotate(get(u) == get(f) ? f : u);
+		}
+		if(v == 0) rt = u;
+	}
+	int build(int l, int r, int fa) //记得赋值根
+	{
+		if(l > r) return 0;
+		int mid = l + r >> 1;
+		//***** 新建节点 *****
+		newp(0, 0, fa, a[mid - 1], 1, 1, a[mid - 1], a[mid - 1], 0, 0);
+		int cur = np;
+		//if(a[mid - 1] != INF) idu[a[mid - 1]] = cur; 编号绑定
+		t[cur].ch[0] = build(l, mid - 1, cur);
+		t[cur].ch[1] = build(mid + 1, r, cur);
+		
+		push_up(cur);
+		//*********************
+		return cur;
+	}
+	int kth(ll x) // 查找中序第x个数
+	{
+		int u = rt;
+		while(1)
+		{
+			push_down(u);
+			if(x <= t[t[u].ch[0]].sz) u = t[u].ch[0];
+			else
+			{
+				x -= t[t[u].ch[0]].sz + 1;
+				if(x == 0) return u;
+				u = t[u].ch[1];
+			}
+		}
+	}
+	inline void make(int &l, int &r)
+	{
+		l = kth(l + 1); r = kth(r + 1);
+		splay(l, 0);
+		splay(r, l);
+	}
+	void section_add(int x, int y, ll val)
+	{
+		int l = x - 1, r = y + 1;
+		make(l, r);
+		int u = t[rt].ch[1];
+		u = t[u].ch[0];
+		mark_add(u, val);
+	}
+	void section_reverse(int x, int y)
+	{
+		int l = x - 1, r = y + 1;
+		make(l, r);
+		int u = t[rt].ch[1];
+		u = t[u].ch[0];
+		mark_reverse(u);
+	}
+	void section_revolve(int x, int y, ll dt)
+	{
+		int len = y - x + 1;
+		dt %= len;
+		if(dt == 0) return;
+		dt = len - dt;// 向右循环移位
+		section_reverse(x + dt, y);
+		section_reverse(x, y);
+		section_reverse(y - dt + 1, y);
+	}
+	void insert(int pos, ll val) // 在位置pos后面插入val
+	{
+		int l = pos, r = pos + 1;
+		make(l, r);
+		newp(0, 0, r, val, 1, 1, val, val, 0, 0);
+		int u = t[rt].ch[1];
+		t[u].ch[0] = np;
+		push_up(r);
+		push_up(l);
+	}
+	void erase(int pos)// 删除位置第pos个元素
+	{
+		int l = pos - 1, r = pos + 1;
+		make(l, r);
+		t[r].ch[0] = 0;
+		push_up(r);
+		push_up(l);
+	}
+	ll query_min(int x, int y)
+	{
+		int l = x - 1, r = y + 1;
+		make(l, r);
+		int u = t[rt].ch[1];
+		u = t[u].ch[0];
+		return t[u].tmin;
+	}
+	ll query_sum(int x, int y)
+	{
+		int l = x - 1, r = y + 1;
+		make(l, r);
+		int u = t[rt].ch[1];
+		u = t[u].ch[0];
+		return t[u].sum;
+	}
+	void print(int u = rt)
+	{
+		if(u == 0) return;
+		push_down(u);
+		print(t[u].ch[0]);
+		if(t[u].val != INF)printf("%d ", t[u].val);
+		print(t[u].ch[1]);
+	}
+	void init(ll* _a, int _n) // a为被维护序列[1···N]
+	{
+		a = _a;
+		n = _n;
+		a[0] = a[n + 1] = INF;
+		np = 0;
+		rt = Splay :: build(1, n + 2, 0);
+	}
+}

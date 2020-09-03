@@ -1,0 +1,22 @@
+namespace Simpson{
+	inline double f(double x) //被积函数
+	{
+		return 
+	}
+	inline double simpson(double l, double r) //辛普森积分公式
+	{
+		double mid = (l + r) / 2.0;
+		return (f(l) + 4.0 * f(mid) + f(r)) * (r - l) / 6.0;
+	}
+	double asr(double l, double r, double ans, double eps) //精度逼近
+	{
+		double mid = (l + r) / 2;
+		double fl = simpson(l, mid), fr = simpson(mid, r);
+		if(fabs(fl + fr - ans) <= 15.0 * eps) return fl + fr + (fl + fr - ans) / 15.0;
+		return asr(l, mid, fl, eps / 2.0) + asr(mid, r, fr, eps / 2.0);
+	}
+	double asme(double l, double r, double eps = 1e-3) //调用
+	{
+		return asr(l, r, simpson(l, r), eps);
+	}
+}

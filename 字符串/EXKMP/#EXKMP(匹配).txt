@@ -1,0 +1,61 @@
+namespace EXKMP{
+	const int N = 1e6 + 5;
+	char *P, *T;
+	int np, nt;
+	int z[N];  //模式串自配
+	int ex[N]; //文本串匹配
+	void init(char *_T, int _nt, char *_P, int _np)
+	{
+		//下标从1开始
+		P = _P - 1; np = _np;
+		T = _T - 1; nt = _nt;
+	}
+	void self()
+	{
+		z[1] = np;
+		int match = 0;
+		while(P[1 + match] == P[2 + match] && 2 + match <= np) match ++;
+		z[2] = match;
+		int po = 2;
+		int R = z[po];
+		int len;
+		for(int i = 3; i <= np; ++i)
+		{
+			len = i - po + 1;
+			if(z[len] + len <= R)  z[i] = z[len];
+			else
+			{
+				match = R - len + 1;
+				if(match < 0) match = 0;
+				while(P[1 + match] == P[i + match] && i + match <= np) match ++;
+				z[i] = match;
+				po = i;
+				R = z[i];
+			}
+		}
+	}
+	void exkmp()
+	{
+		self();
+		int match = 0;
+		while(T[1 + match] == P[1 + match] && match < np && match < nt ) match ++;
+		ex[1] = match;
+		int po = 1;
+		int R = ex[po];
+		int len;
+		for(int i = 2; i <= nt; ++i)
+		{
+			len = i - po + 1;
+			if(z[len] + len <= R)  ex[i] = z[len];
+			else
+			{
+				match = R - len + 1;
+				if(match < 0) match = 0;
+				while(P[1 + match] == T[i + match] && i + match <= nt && 1 + match <= np) match ++;
+				ex[i] = match;
+				po = i;
+				R = ex[po];
+			}
+		}
+	}
+}

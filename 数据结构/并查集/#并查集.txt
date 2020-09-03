@@ -1,0 +1,24 @@
+namespace Dsu{
+	const int N = 1e5 + 5;
+	int n, components;
+	int data[N];
+	// 如果 i 是根那么 data[i] < 0, 且-data[i] 是大小 否者 data[i] 是其父节点
+	void init(int _n)
+	{
+		components = n = _n;
+		for(int i = 0; i <= n; ++ i) data[i] = -1;
+	}
+	int find(int x){ return data[x] < 0 ? x : data[x] = find(data[x]);}
+	int size(int x){ return -data[find(x)];}
+	bool unite(int x, int y)
+	{
+		x = find(x);
+		y = find(y);
+		if(x == y) return 0;
+		if( - data[x] < - data[y]) swap(x, y);
+		data[x] += data[y];
+		data[y] = x;
+		components --;
+		return 1;
+	}
+}

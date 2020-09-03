@@ -1,0 +1,100 @@
+namespace Block{
+	typedef long long ll;
+	const int N = 1e5 + 5;
+	int SIZE; //块的大小
+	int blockid[N];
+	ll a[N];// 线性维护的数据
+	int n;
+	struct node{
+		//块状维护的数据
+		//**
+		ll mark;
+	}b[N];
+	void init(int _n)
+	{
+		n = _n;
+		SIZE = sqrt(n);
+		for(int i = 1; i <= n; ++i) //块编号初始化
+		{
+			blockid[i] = (i - 1) / SIZE + 1;
+			a[i] = 0;
+		}
+		for(int i = 1; i <= n; i += SIZE) //块内数据初始化
+		{//**
+			int B = blockid[i];
+			b[B].mark = 0;
+		}
+	}
+	inline void modifysingle(int x, ll c) //修改单点
+	{//**
+		a[x] = c;
+	}
+	void modifyblock(int x) //修改块
+	{//**
+		if(b[x].mark == 0) return;
+		int l = (x - 1) * SIZE + 1;
+		int r = min(n, x * SIZE);
+		for(int i = l; i <= r ; ++i) modifysingle(i, b[x].mark);
+		b[x].mark = 0;
+	}
+	void modify(int l, int r, ll c) // 区间修改
+	{
+		int B1 = blockid[l];
+		int B2 = blockid[r];
+		if(B1 == B2)
+		{
+			modifyblock(B1);
+			for(int i = l; i <= r; ++i) modifysingle(i, c);
+		}
+		else
+		{
+			modifyblock(B1);
+			modifyblock(B2);
+			for(int i = l; blockid[i] == B1; ++i) modifysingle(i, c);
+			for(int i = r; blockid[i] == B2; --i) modifysingle(i, c);
+			for(int i = B1 + 1; i <= B2 - 1; ++i) b[i].mark = c;
+		}
+	}
+	ll queryblock(int x, int c) //块内询问
+	{
+		ll res = 0;
+		int l = (x - 1) * SIZE + 1;
+		int r = x * SIZE;
+		if(b[x].mark == 0)
+		{
+			for(int i = l; i <= r; ++i) if(a[i] == c) 
+				res ++;
+		}
+		else if(b[x].mark == c) res = SIZE;
+		return res;
+	}
+	ll query(int l, int r, ll c) //区间询问
+	{
+		int B1 = blockid[l];
+		int B2 = blockid[r];
+		ll res = 0;
+		if(B1 == B2)
+		{
+			for(int i = l; i <= r; ++i)
+			{//**
+				if(c == b[B1].mark || b[B1].mark == 0 && c == a[i]) res ++;
+			}
+		}
+		else
+		{
+			for(int i = l; blockid[i] == B1; ++i)//遍历第一个块
+			{//**
+				if(c == b[B1].mark || b[B1].mark == 0 && c == a[i]) res ++;
+			}
+			for(int i = r; blockid[i] == B2; --i)//遍历最后一个块
+			{//**
+				if(c == b[B2].mark || b[B2].mark == 0 && c == a[i]) res ++;
+			}
+			for(int i = B1 + 1; i <= B2 - 1; ++i) //遍历中间块
+			{//**
+				res += queryblock(i, c);
+			}
+		}
+		return res;
+	}
+}

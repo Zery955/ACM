@@ -1,0 +1,12 @@
+double Circumference(vector<Point> &a)
+{
+	//计算凸包周长(a是逆时针凸包点)
+	double res = 0.0;
+	int n = a.size();
+	for(int i = 0; i < n; ++i)
+	{
+		//printf("(%lf, %lf)\n", a[i].x, a[i].y);
+		res += distance(a[i], a[(i + 1) % n]);
+	}
+	return res;
+}

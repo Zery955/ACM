@@ -1,0 +1,65 @@
+namespace Miller_Rabin{
+    typedef long long ll;
+    const int times = 10; // 测试次数
+    ll ksc(ll a, ll b, ll mod)
+    {
+        ll res = 0;
+        while(b)
+        {
+            if(b & 1)
+            {
+                res += a;
+                if(res >= mod) res -= mod;
+            }
+            a += a;
+            if(a >= mod) a -= mod;
+            b >>= 1;
+        }
+        return res;
+    }
+    ll ksm(ll a, ll k, ll mod)
+    {
+        ll res = 1;
+        while(k)
+        {
+            if(k & 1) res = ksc(res, a, mod);
+            a = ksc(a, a, mod);
+            k >>= 1;
+        }
+        return res;
+    }
+    
+    ll random(ll n)            //生成[ 0 , n ]的随机数
+    {
+        return ((double)rand( ) / RAND_MAX * n + 0.5);
+    }
+    bool test(ll a, ll n)
+    {
+        ll k = n - 1;
+        int j = 0;
+        while(k % 2 == 0)
+        {
+            k >>= 1;
+            j ++;
+        }
+        ll x = ksm(a, k, n);
+        if(x == 1 || x == n - 1) return 1;
+        while(j --)
+        {
+            x = ksc(x, x, n);
+            if(x == n - 1) return 1;
+        }
+        return 0;
+    }
+    bool miller_rabin(ll n)
+    {
+        if(n == 2) return 1;
+        if(n < 2 || n % 2 == 0) return 0;
+        for(int i = 1; i <= times; ++i)
+        {
+            ll a = random(n - 2) + 1;
+            if(test(a, n) == 0) return 0;
+        }
+        return 1;
+    }
+}

@@ -1,0 +1,50 @@
+namespace Max_sub_rectangle{
+	//时间复杂度:O(n^2)
+	const int N = 1e5 + 5;
+	int l, w; //XOY轴右上角点坐标为(L, W)
+	int n; // 挖掉点的数量
+	struct BadPoint{
+		int x, y;
+	}a[N];
+	bool cmpx(const BadPoint &a, const BadPoint &b){return a.x < b.x;}
+	bool cmpy(const BadPoint &a, const BadPoint &b){return a.y < b.y;}
+	void init(int _l, int _w) //注意坐标传值，如果是向下的矩阵应该对调
+	{
+		l = _l, w =_w;
+		n = 0;
+	}
+	void insert(int x, int y){a[ ++ n] = {x, y};} //同上
+	int max_sub_rectangle()
+	{
+		int res = 0;
+		insert(0, 0); insert(0, w); insert(l, 0); insert(l, w);
+		sort(a + 1, a + n + 1, cmpx);
+		for(int i = 1; i <= n; ++i)
+		{
+			int u = w, d = 0;
+			for(int j = i + 1; j <= n; ++j)
+			{
+				if((u - d) * (l - a[i].x) < res) break;
+				res = max(res, (u - d) * (a[j].x - a[i].x));
+				if(a[j].y > a[i].y) u = min(u, a[j].y);
+				else if(a[j].y < a[i].y) d = max(d, a[j].y);
+				else break;
+			}
+			u = w, d = 0;
+			for(int j = i - 1; j >= 1; --j)
+			{
+				if((u - d) * a[i].x < res) break;
+				res = max(res, (u - d) * (a[i].x - a[j].x));
+				if(a[j].y > a[i].y) u = min(u, a[j].y);
+				else if(a[j].y < a[i].y) d = max(d, a[j].y);
+				else break;
+			}
+		}
+		sort(a + 1, a + n + 1, cmpy);
+		for(int i = 1; i < n; ++i) //以上枚举漏掉的情况
+		{
+			res = max(res, (a[i + 1].y - a[i].y) * l);
+		}
+		return res;
+	}
+}

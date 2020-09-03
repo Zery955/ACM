@@ -1,0 +1,66 @@
+namespace EK{
+	const int N = 1e3 + 5;
+	const int M = 1e4 + 5; // O(n*(m ^ 2)
+	typedef long long ll;
+	const ll INF = 1e17;
+	int S, T;
+	int head[N], to[M * 2], nxt[M * 2], num, pre[N]; //pre存的到这个点的边
+	ll cap[M * 2];
+	int q[N];
+	ll f[N];
+	bool vis[N];
+	void init(int _S, int _T) // 空间连续分配
+	{
+		S = _S;
+		T = _T;
+		for(int i = 0; i < N; ++ i)
+		{
+			head[i] = 0;
+		}
+		num = 1;
+	}
+	void addedge(int u , int v, ll cap1 = 1, ll cap2 = 0) // 有向图反向边为0, 无向图反向边等值
+	{
+		nxt[ ++ num] = head[u]; to[num] = v; cap[num] = cap1, head[u] = num;
+		nxt[ ++ num] = head[v]; to[num] = u; cap[num] = cap2, head[v] = num;
+	}
+	bool bfs()
+	{
+		memset(vis, 0, sizeof vis);
+		f[S] = INF;
+		int hh = 0, tt = -1;
+		q[ ++ tt] = S; vis[S] = 1;
+		while(hh <= tt)
+		{
+			int u = q[hh ++ ];
+			for(int e = head[u]; e ; e = nxt[e])
+			{
+				int v = to[e];
+				if(vis[v] == 0 && cap[e])
+				{
+					
+					vis[v] = 1;
+					f[v] = min(f[u], cap[e]);
+					pre[v] = e;
+					if(v == T) return 1;
+					q[ ++ tt] = v;
+				}
+			}
+		}
+		return 0;
+	}
+	ll ek()
+	{
+		ll res = 0;
+		while(bfs())
+		{
+			res += f[T];
+			for(int u = T; u != S; u = to[pre[u] ^ 1])
+			{
+				cap[pre[u]] -= f[T];
+				cap[pre[u] ^ 1] += f[T];
+			}
+		}
+		return res;
+	}
+}

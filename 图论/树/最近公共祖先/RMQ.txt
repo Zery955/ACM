@@ -1,0 +1,59 @@
+namespace LCA{
+	const int N = 5e5 + 5;
+	const int M = 20; //cap_bit (一定适当就好)
+	int euler[N * 2][M], cnt, dfn[N];
+	int n, rt;
+	int dep[N];
+	int head[N], to[2 * N], nxt[2 * N], num;
+	int Log[N * 2];
+	void init(int _n, int _rt = 1)
+	{
+		n = _n;
+		rt = _rt;
+		for(int i = 0; i <= n; ++i)
+		{
+			head[i] = 0;
+		}	
+		cnt = 0;
+		num = 0;
+	}
+	inline void addedge(int u, int v)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		head[u] = num;
+	}
+	void dfs(int u, int fa)
+	{
+		dep[u] = dep[fa] + 1;
+		euler[ ++ cnt][0] = u;
+		dfn[u] = cnt;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(v == fa) continue;
+			dfs(v, u);
+			euler[ ++ cnt][0] = u;
+		}
+	}
+	void RMQ()
+	{
+		dfs(rt, 0);
+		Log[0] = -1;
+		for(int i = 1; i <= 2 * n; ++i) Log[i] = Log[i / 2] + 1;
+		for(int k = 1; k < M; ++k)
+			for(int i = 1; i + (1 << k) - 1 <= cnt; ++i)
+			{
+				euler[i][k] = dep[euler[i][k - 1]] < dep[euler[i + (1 << k - 1)][k - 1]] ?
+								euler[i][k - 1] : euler[i + (1 << k - 1)][k - 1];
+			}
+	}
+	inline int query(int a, int b)
+	{
+		int l = dfn[a], r = dfn[b];
+		if(l > r) swap(l, r);
+		int k = Log[r - l + 1];
+		return dep[euler[l][k]] < dep[euler[r - (1 << k) + 1][k]] ?
+				euler[l][k] : euler[r - (1 << k) + 1][k];
+	}
+}

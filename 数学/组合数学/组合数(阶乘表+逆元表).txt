@@ -1,0 +1,31 @@
+namespace Combination{
+	typedef long long ll;
+	const int N = 1e7 + 10;
+	const ll Mod = 998244353;
+	ll fac[N], inv[N];
+	ll ksm(ll a, ll k)
+	{
+		ll res = 1;
+		while(k)
+		{
+			if(k & 1) (res *= a) %= Mod;
+			(a *= a) %= Mod;
+			k >>= 1;
+		}
+		return res;
+	}
+	void init()
+	{
+		fac[0] = 1;
+		for(int i = 1; i < N; ++i) fac[i] = fac[i - 1] * i % Mod;
+		inv[N - 1] = ksm(fac[N - 1], Mod - 2);
+		for(int i = N - 2; i >= 0; --i) inv[i] = inv[i + 1] * (i + 1) % Mod;
+	}
+
+	ll C(ll n, ll m)
+	{
+		if(n < 0 || m < 0 || n < m) return 0;
+		return fac[n] * inv[m] % Mod * inv[n - m] % Mod;
+	}
+}
+#define C(n, m) Combination :: C(n, m)

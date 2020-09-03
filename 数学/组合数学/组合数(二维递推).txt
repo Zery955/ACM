@@ -1,0 +1,22 @@
+namespace Combination{
+	typedef long long ll;
+	const int N = 100 + 5;
+	const ll Mod = 1e9 + 7;
+	ll f[N][N];
+	void init()
+	{
+		for(int i = 0; i < N; ++i)
+			for(int j = 0; j <= i; ++j)
+			{
+				if(j == 0) f[i][j] = 1;
+				else 
+				f[i][j] = (f[i - 1][j] + f[i - 1][j - 1]) % Mod;
+			}
+	}
+	ll C(ll n, ll m)
+	{
+		if(n < 0 || m < 0 || n < m) return 0;
+		return f[n][m];
+	}
+}
+#define C(n, m) Combination :: C(n, m)

@@ -1,0 +1,199 @@
+namespace Splay{
+	const int N = 1e6 + 5;
+	const ll INF = 1e18;
+	typedef long long ll;
+	int rt, np;
+	struct node{
+		int ch[2];
+		int cnt;
+		int sz;
+		ll val;
+		int fa;
+	}t[N];
+	inline void update(int x){t[x].sz = t[t[x].ch[0]].sz + t[t[x].ch[1]].sz + t[x].cnt;}
+	inline bool get(int x){return x == t[t[x].fa].ch[1];}
+	inline void clear(int x){t[x].ch[0] = t[x].ch[1] = t[x].cnt = t[x].sz = t[x].val = t[x].fa = 0;}
+	inline void newp(ll val, int fa)
+	{
+		++ np;
+		clear(np);
+		t[np].val = val;
+		t[np].fa = fa;
+		t[np].cnt = 1;
+	}
+	void init()
+	{
+		clear(0);
+		np = 0;
+		rt = 0;
+	}
+	inline void rotate(int x)
+	{
+		int y = t[x].fa, z = t[y].fa, son = get(x);
+		t[y].ch[son] = t[x].ch[son ^ 1];
+		t[t[x].ch[son ^ 1]].fa = y;
+		t[x].ch[son ^ 1] = y;
+		t[y].fa = x;
+		t[x].fa = z;
+		if(z) t[z].ch[y == t[z].ch[1]] = x;
+		update(y);
+		update(x);
+	}
+	void splay(int x)
+	{
+		for(int f = t[x].fa; f = t[x].fa; rotate(x))
+		{
+			if(t[f].fa) rotate(get(x) == get(f) ? f : x);
+		}
+		rt = x;
+	}
+	int find(ll x)
+	{
+		int u = rt;
+		while(1)
+		{
+			if(t[u].val == x)
+			{
+				splay(u);
+				return u;
+			}
+			u = t[u].ch[t[u].val <= x];
+			if(u == 0) return 0;
+		}
+	}
+	void insert(ll x)
+	{
+		if(rt == 0)
+		{
+			newp(x, 0);
+			rt = np;
+			update(rt);
+			return;
+		}
+		int u = rt, f = 0;
+		while(1)
+		{
+			if(t[u].val == x)
+			{
+				t[u].cnt ++ ;
+				update(u);
+				update(f);
+				splay(u);
+				break;
+			}
+			f = u;
+			u = t[u].ch[t[u].val <= x];
+			if(u == 0)
+			{
+				newp(x, f);
+				t[f].ch[t[f].val <= x] = np;
+				update(np);
+				update(f);
+				splay(np);
+				break;
+			}
+		}
+	}
+	int rk(ll x)
+	{
+		int res = 0, u = rt;
+		while(1)
+		{
+			if(x < t[u].val)
+			{
+				u = t[u].ch[0];
+			}
+			else
+			{
+				res += t[t[u].ch[0]].sz;
+				if(x == t[u].val)
+				{
+					splay(u);
+					return res + 1;
+				}
+				res += t[u].cnt;
+				u = t[u].ch[1];
+			}
+		}
+		
+	}
+	int kth(int k)
+	{
+		int u = rt;
+		while(1)
+		{
+			if(t[u].ch[0] && k <= t[t[u].ch[0]].sz)
+			{
+				u = t[u].ch[0];
+			}
+			else
+			{
+				k -= t[u].cnt + t[t[u].ch[0]].sz;
+				if(k <= 0)
+				{
+					splay(u);
+					return t[u].val;
+				}
+				u = t[u].ch[1];
+			}
+		}
+	}
+	ll pre(ll x)
+	{
+		int u = rt;
+		ll res = -INF, preu = 0;
+		while(u)
+		{
+			if(t[u].val < x && t[u].val > res) res = t[u].val, preu = u;
+			if(x <= t[u].val) u = t[u].ch[0];
+			else u = t[u].ch[1];
+		}
+		if(preu != 0) splay(preu);
+		return res;
+	}
+	ll nxt(ll x)
+	{
+		int u = rt;
+		ll res = INF, nxtu = 0;
+		while(u)
+		{
+			if(t[u].val > x && t[u].val < res) res = t[u].val, nxtu = u;
+			if(x >= t[u].val) u = t[u].ch[1];
+			else u = t[u].ch[0];
+		}
+		if(nxtu) splay(nxtu);
+		return res;
+	}
+	void erase(ll x)
+	{
+		x = find(x);
+		if(x == 0) return;
+		if(t[rt].cnt > 1)
+		{
+			t[rt].cnt --;
+			update(rt);
+			return;
+		}
+		if(!t[rt].ch[0])
+		{
+			int u = rt;
+			rt = t[rt].ch[1];
+			t[rt].fa = 0;
+			clear(u);
+			return;
+		}
+		if(!t[rt].ch[1])
+		{
+			int u = rt;
+			rt = t[rt].ch[0];
+			t[rt].fa = 0;
+			clear(u);
+			return;
+		}
+		int u = rt, newrt = find(pre(t[u].val));
+		t[t[u].ch[1]].fa = newrt;
+		t[newrt].ch[1] = t[u].ch[1];
+		clear(u);
+		update(rt);
+	}
+}

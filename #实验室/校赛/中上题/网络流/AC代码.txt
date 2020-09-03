@@ -1,0 +1,252 @@
+#define _BITS_STDCPP_H_
+#ifdef _BITS_STDCPP_H_
+    #include <bits/stdc++.h>
+#else
+    #include <iostream>
+    #include <cstdio>
+    #include <algorithm>
+    #include <cstring>
+    #include <bitset>
+    #include <vector>
+    #include <map>
+    #include <queue>
+#endif
+using namespace std;
+//************************************
+typedef unsigned long long ull;
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef pair<long long, long long> pll;
+typedef pair<double, double> pdd;
+typedef bitset<30001> BIT;
+const double eps = 1e-10;
+template<typename T> void read(T &x){
+    int f = 1;x = 0;char s = getchar();
+    while(s < '0'|| s > '9'){if(s == '-') f = -1; s = getchar();}
+    while(s >= '0' && s <= '9'){x = x * 10 + s - '0'; s = getchar();}
+    x *= f;
+}
+template<typename T> void print(T x){
+    if(x < 0)putchar('-'),x = -x;
+    if(x > 9) print(x / 10);
+    putchar(x % 10 + '0');
+}
+template<typename T1, typename T2> inline void read(T1 &a, T2 &b){read(a); read(b);}
+template<typename T1, typename T2, typename T3> inline void read(T1 &a, T2 &b, T3 &c){read(a); read(b); read(c);}
+template<typename T1, typename T2, typename T3, typename T4> inline void read(T1 &a, T2 &b, T3 &c, T4 &d){read(a); read(b); read(c); read(d);}
+inline void reads(char *a){scanf("%s", a);}
+inline void reads(char *a, char *b){scanf("%s%s",a, b);}
+inline void reads(char *a, char *b, char *c){scanf("%s%s%s", a, b, c);}
+inline void reads(char *a, char *b, char *c, char *d){scanf("%s%s%s%s", a, b, c, d);}
+template<typename T1, typename T2> inline void print(T1 a, T2 b){print(a); putchar(' '); print(b);}
+template<typename T1, typename T2, typename T3> inline void print(T1 a, T2 b, T3 c){print(a); putchar(' '); print(b); putchar(' '); print(c);}
+template<typename T1, typename T2, typename T3, typename T4> inline void print(T1 a, T2 b, T3 c, T4 d){print(a); putchar(' '); print(b); putchar(' '); print(c); putchar(' ');print(d);}
+inline void prints(char *a){printf("%s", a);}
+inline void prints(char *a, char *b){printf("%s %s", a, b);}
+inline void prints(char *a, char *b, char *c){printf("%s %s %s", a, b, c);}
+inline void prints(char *a, char *b, char *c, char *d){printf("%s %s %s %s", a, b, c, d);}
+inline void Yes(bool a){if(a) puts("Yes"); else puts("No");}
+inline void YES(bool a){if(a) puts("YES"); else puts("NO");}
+inline void yes(bool a){if(a) puts("yes"); else puts("no");}
+template<typename T> inline T sqr(T x){return x * x;}
+template<typename T> inline T random(T R){return (double)rand() / RAND_MAX * R + ((T)0.5 == 0 ? 0.5 : 0.0);}
+template<typename T> inline T random(T L, T R){return random(R - L) + L;}
+template<typename T> inline T Max(const T &a, const T &b, const T &c){return max(max(a, b), c);}
+template<typename T> inline T Max(const T &a, const T &b, const T &c, const T &d){return max(Max(a, b, c), d);}
+template<typename T> inline T Min(const T &a, const T &b, const T &c){return min(min(a, b), c);}
+template<typename T> inline T Min(const T &a, const T &b, const T &c, const T &d){return min(Min(a, b, c), d);}
+//******************** 计算几何 ********************
+inline int sgn(double d){if(fabs(d) < eps) return 0;if(d > 0) return 1;return -1;}
+struct Point{
+	double x, y;
+	Point():x(0.0), y(0.0){}
+	Point(double a, double b = 0.0): x(a), y(b){}
+	Point(const Point& p): x(p.x), y(p.y){}
+	Point operator + (const Point& a){return {x + a.x, y + a.y};}
+	Point operator - (const Point& a){return {x - a.x, y - a.y};}
+	double operator * (const Point& a){return x * a.x + y * a.y;}
+	double operator ^ (const Point& a){return x * a.y - y * a.x;}
+	bool operator == (const Point& p){return sgn(x - p.x) == 0 && sgn(y - p.y) == 0;}
+	bool operator < (const Point &p) const{
+		if(sgn(x - p.x) == 0) 
+			return sgn(y - p.y) == -1;
+		return sgn(x - p.x) == -1;
+	}
+}typedef Vector;
+double distance(const Point &a, const Point &b) 
+{
+	double x = a.x - b.x;
+	double y = a.y - b.y;
+	return sqrt(x * x + y * y);
+}
+//**************************************************
+ll ksm(ll a, ll k, ll Mod){ll res = 1; while(k){if(k & 1) (res *= a) %= Mod; (a *= a) %= Mod; k >>= 1;} return res % Mod;}
+inline ll inv(ll a, ll Mod){return ksm(a, Mod - 2, Mod);}
+inline void cap_bit(ll x){ for(int i = 63; i >= 0; --i)if(x >> i & 1) {printf("Need (%d) = %lld\n", i + 1, 1LL << (i + 1)); return;}}
+inline void cal_space(ll x){printf("%lld MB\n" ,x >> 20);}
+const int dx4[] = {0, 0, -1, 1};
+const int dy4[] = {-1, 1, 0, 0};
+const int dx6[] = {1, -1, 0, 0, 0, 0};
+const int dy6[] = {0, 0, 1, -1, 0, 0};
+const int dz6[] = {0, 0, 0, 0, 1, -1};
+#define nbsp putchar(' ')
+#define br puts("")
+#define arr0(a) cout << #a << " = " << a;
+#define arr1(a, x) cout << #a << "[" << x << "] = " << a[x]
+#define arr2(a, x, y) cout << #a << "[" << x << "][" << y << "] = "<< a[x][y]
+#define pi acos(-1.0)
+#define mp(x, y) make_pair(x, y)
+#define gcd(x, y) __gcd(x, y)
+#define all(x) (x).begin(), (x).end()
+#define pb push_back
+#define xx first
+#define yy second
+#define lowbit(x) (x) & (-x)
+#define Mod(a, mod) if((a) >= (mod)) (a) %= (mod)
+const int N = 50 + 5;
+const int M = 2e5 + 5;
+const ll Mod = 1e9 + 7;
+//************************************
+namespace Maxflow{
+	typedef long long ll;
+	const int N = 300 + 5; // 点数
+	const int M = 1e4 + 5; // 边数的一半
+	const ll inf = 1e17;
+	int S, T;//源点与汇点
+	int head[N], nxt[2 * M], to[2 * M], num;
+	ll cap[2 * M];
+	int lev[N];
+	void init(int _S, int _T)
+	{
+		S = _S;
+		T = _T;
+		for(int i = 0; i < N; ++i)
+		{
+			head[i] = 0;
+		}
+		num = 1;
+	}
+	void addedge(int u, int v, int c1, int c2)
+	{
+		nxt[++ num] = head[u]; to[num] = v; cap[num] = c1; head[u] = num;
+		nxt[++ num] = head[v]; to[num] = u; cap[num] = c2; head[v] = num;
+	}
+	bool bfs()
+	{
+		fill(lev, lev + N, 0);
+		lev[S] = 1;
+		queue<int> q;
+		q.push(S);
+		while(q.size())
+		{
+			int u = q.front(); q.pop();
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				if(cap[e] > 0 && lev[v] == 0)
+				{
+					lev[v] = lev[u] + 1;
+					q.push(v);
+				}
+			}
+		}
+		return lev[T] != 0;
+	}
+	ll dfs(int u, ll flow)
+	{
+		if(u == T) return flow;
+		ll cur_flow = 0;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(cap[e] && lev[v] == lev[u] + 1)
+			{
+				ll f = dfs(v, min(cap[e], flow));
+				if(f)
+				{
+					flow -= f;
+					cap[e] -= f;
+					cap[e ^ 1] += f;
+					cur_flow += f;
+				}
+				else lev[v] = 0;
+				if(flow == 0) break;
+			}
+		}
+		return cur_flow;
+	}
+	ll max_flow()
+	{
+		ll flow = 0;
+		while(bfs())
+		{
+			ll f;
+			while(f = dfs(S, inf)) flow += f;
+		}
+		return flow;
+	}
+}
+
+int T;
+int a, b, n, m;
+inline int rowL(int i){return i;}
+inline int rowR(int i){return i + n;}
+inline int colL(int i){return 2 * n + i;}
+inline int colR(int i){return 2 * n + m + i;}
+int _ans[N][N];
+int main()
+{
+	read(T);
+	while( T --)
+	{
+		read(n, m, a, b);
+		if(n * a != m * b)
+		{
+			puts("NO");
+			continue;
+		}
+		int s = 0, t = n * 2 + m * 2 + 1;
+		Maxflow :: init(s, t);
+		for(int i = 1; i <= n; ++i)
+		{
+			Maxflow :: addedge(s, rowL(i), 1e7, 0);
+			Maxflow :: addedge(rowL(i), rowR(i), a, 0);
+		}
+		for(int j = 1; j <= m; ++j)
+		{
+			Maxflow :: addedge(colR(j), t, 1e7, 0);
+			Maxflow :: addedge(colL(j), colR(j), b, 0);
+		}
+		for(int i = 1; i <= n; ++i)
+			for(int j = 1; j <= m; ++j)
+				Maxflow :: addedge(rowR(i), colL(j), 1, 0);
+		int ans = Maxflow :: max_flow();
+		if(ans != a * n)
+		{
+			puts("NO");
+		}
+		else
+		{
+			puts("YES");
+			for(int i = 1; i <= n; ++i)
+			{
+				for(int e = Maxflow :: head[rowR(i)]; e; e = Maxflow :: nxt[e])
+				{
+					int v = Maxflow :: to[e];
+					if(v <= n) continue;
+					if(Maxflow :: cap[e] == 0) _ans[i][v - 2 * n] = 1;
+					else _ans[i][v - 2 * n] = 0;
+				}
+			}
+			for(int i = 1; i <= n; ++i)
+			{
+				for(int j = 1; j <= m; ++j)
+				{
+					print(_ans[i][j]);
+				}
+				br;
+			}
+		}
+	}
+	return 0;
+}

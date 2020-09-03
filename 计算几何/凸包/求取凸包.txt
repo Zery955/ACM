@@ -1,0 +1,52 @@
+namespace ConvexHull{
+	struct cmp{
+		//¼«½ÇÅÅÐò·Âº¯Êý
+		Point p;
+		cmp(const Point& _p) : p(_p){}
+		bool operator()(const Point &_a, const Point &_b)
+		{
+			Point a = _a, b = _b;
+			double d = (a - p) ^ (b - p);
+			if(sgn(d) == 0)	return sgn(distance(a, p) - distance(b, p)) == -1;
+			return sgn(d) == 1;
+		}
+ 	};
+	vector<Point> a;
+	void init()
+	{
+		a.clear();
+	}
+	void addpoint(const Point &x)
+	{
+		a.push_back(x);
+	}
+	void convexhull(vector<Point> &res)
+	{
+		Point o = a[0];
+		for(auto & i : a) o = min(o, i);
+		sort(a.begin(), a.end(), cmp(o));
+
+		res.clear();
+		if(a.size() == 1)
+		{
+			res.push_back(a[0]);
+			return;
+		}
+		else if(a.size() == 2)
+		{
+			res.push_back(a[0]);
+			res.push_back(a[1]);
+			if(a[0] == a[1]) a.pop_back();
+			return;
+		}
+		res.push_back(a[0]);
+		res.push_back(a[1]);
+		for(int i = 2; i < a.size(); ++i)
+		{
+			while(res.size() >= 2 && sgn((res[res.size() - 1] - res[res.size() - 2]) ^ (a[i] - res[res.size() - 2])) <= 0)
+				res.pop_back();
+			res.push_back(a[i]);
+		}
+		if(res.size() == 2 && res[0] == res[1]) res.pop_back();
+	}
+}

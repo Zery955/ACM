@@ -1,0 +1,72 @@
+namespace DJS{
+	const int N = 5e6 + 5;
+	const int maxn = N - 1;
+	const ll Mod = 1e9 + 7;
+	const ll INV2 = 500000004;
+	const ll INV6 = 166666668;
+	unordered_map<ll, ll> SF;
+	ll sphi[N], sf[N];
+	int phi[N], st[N];
+	vector<int> primes;
+	inline ll sumi(ll n){return (n % Mod + 1) * (n % Mod) % Mod * INV2 % Mod;}
+	inline ll sumi2(ll n){return (n % Mod + 1) * (n % Mod) % Mod * ((n * 2 + 1) % Mod) % Mod * INV6 % Mod;}
+	inline ll sumi3(ll n) {return sumi(n) * sumi(n) % Mod;}
+	void init()
+	{
+		primes.clear();
+		SF.clear();
+		phi[1] = 1;
+		for(int i = 2; i <= maxn; ++ i)
+		{
+			if(st[i] == 0)
+			{
+				st[i] = i;
+				phi[i] = i - 1;
+				primes.push_back(i);
+			}
+			for(auto j: primes)
+			{
+				if(1LL * i * j > maxn) break;
+				st[i * j] = j;
+				if(i % j == 0)
+				{
+					phi[i * j] = phi[i] * j;
+					break;
+				}
+				else
+				{
+					phi[i * j] = phi[i] * phi[j];
+				}
+			}
+		}
+		for(int i = 1; i <= maxn; ++ i) 
+		{
+			sphi[i] = (sphi[i - 1] + phi[i]) % Mod;
+			sf[i] = (sf[i - 1] + 1LL * i * i % Mod * phi[i] % Mod) % Mod;
+		}
+	}
+	ll sum_f(ll i) // f = i * i + phi[i];
+	{
+		if(i <= maxn) return sf[i];
+		if(SF.count(i)) return SF[i];
+		ll ans = sumi3(i);
+		for(ll l = 2, r; l <= i; l = r + 1)
+		{
+			r = i / (i / l);
+			ans -= (sumi2(r) - sumi2(l - 1)) * sum_f(i / l) % Mod;
+			ans %= Mod;
+		}
+		return SF[i] = (ans + Mod) % Mod;
+	}
+	ll sum_lcm(ll n) // sum_{i = 1} ^{n} sum_{j = 1} ^{n} lcm(i, j)
+	{
+		ll ans = 0;
+		for(ll l = 1, r; l <= n; l = r + 1)
+		{
+			r = n / (n / l);
+			ans += (sumi(r) - sumi(l - 1)) * sum_f(n / l) % Mod;
+			ans %= Mod;
+		}
+		return (ans + Mod) % Mod;
+	}
+}

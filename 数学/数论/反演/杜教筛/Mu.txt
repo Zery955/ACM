@@ -1,0 +1,50 @@
+namespace DJS{
+	const int N = 5e6 + 5;
+	const int maxn = N - 1;
+	unordered_map<ll, ll> SMU;
+	ll smu[N];
+	int mu[N], st[N];
+	vector<int> primes;
+	void init()
+	{
+		SMU.clear();
+		primes.clear();
+		mu[1] = 1;
+		for(int i = 2; i <= maxn; ++ i)
+		{
+			if(st[i] == 0)
+			{
+				st[i] = i;
+				mu[i] = -1;
+				primes.push_back(i);
+			}
+			for(auto j: primes)
+			{
+				if(1LL * i * j > maxn) break;
+				st[i * j] = j;
+				if(i % j == 0)
+				{
+
+					break;
+				}
+				else
+				{
+					mu[i * j] = - mu[i];
+				}
+			}
+		}
+		for(int i = 1; i <= maxn; ++ i) smu[i] = smu[i - 1] + mu[i];
+	}
+	ll sum_mu(ll i)
+	{
+		if(i <= maxn) return smu[i];
+		if(SMU.count(i)) return SMU[i];
+		ll ans = 1;
+		for(ll l = 2, r; l <= i; l = r + 1)
+		{
+			r = i / (i / l);
+			ans -= (r - l + 1) * sum_mu(i / l);
+		}
+		return SMU[i] = ans;
+	}
+}

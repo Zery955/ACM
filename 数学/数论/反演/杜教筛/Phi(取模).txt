@@ -1,0 +1,57 @@
+namespace DJS{
+	const int N = 5e6 + 5;
+	const int maxn = N - 1;
+	const ll Mod = 1e9 + 7;
+	const ll INV2 = 500000004;
+	unordered_map<ll, ll> SPHI;
+	ll sphi[N];
+	int phi[N], st[N];
+	vector<int> primes;
+	void init()
+	{
+		SPHI.clear();
+		primes.clear();
+		phi[1] = 1;
+		for(int i = 2; i <= maxn; ++ i)
+		{
+			if(st[i] == 0)
+			{
+				st[i] = i;
+				phi[i] = i - 1;
+				primes.push_back(i);
+			}
+			for(auto j: primes)
+			{
+				if(1LL * i * j > maxn) break;
+				st[i * j] = j;
+				if(i % j == 0)
+				{
+					phi[i * j] = phi[i] * j;
+					break;
+				}
+				else
+				{
+					phi[i * j] = phi[i] * phi[j];
+				}
+			}
+		}
+		for(int i = 1; i <= maxn; ++ i) 
+		{
+			sphi[i] = sphi[i - 1] + phi[i];
+			sphi[i] %= Mod;
+		}
+	}
+	ll sum_phi(ll i)
+	{
+		if(i <= maxn) return sphi[i];
+		if(SPHI.count(i)) return SPHI[i];
+		ll ans = (i % Mod) * ((i + 1) % Mod) % Mod * INV2 % Mod;
+		for(ll l = 2, r; l <= i; l = r + 1)
+		{
+			r = i / (i / l);
+			ans -= (r - l + 1) % Mod * sum_phi(i / l) % Mod;
+			ans %= Mod;
+		}
+		return SPHI[i] = (ans + Mod) % Mod;
+	}
+}

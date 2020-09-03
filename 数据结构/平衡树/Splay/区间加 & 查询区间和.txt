@@ -1,0 +1,123 @@
+namespace Splay{
+	const int N = 1e6 + 5;
+	typedef long long ll;
+	const ll INF = 0;
+	ll* a; int n;
+	int rt, np;
+	struct node{
+		int ch[2];
+		int cnt;
+		int sz;
+		ll val;
+		int fa;
+		ll sum;
+		ll tag;
+	}t[N];
+	inline void push_up(int u)
+	{
+		t[u].sz = t[t[u].ch[0]].sz + t[t[u].ch[1]].sz + t[u].cnt;
+		t[u].sum = t[t[u].ch[0]].sum + t[t[u].ch[1]].sum + t[u].val;
+	}
+	inline void mark(int u, ll val)
+	{
+		t[u].tag += val;
+		t[u].val += val;
+		t[u].sum += val * t[u].sz;
+	}
+	inline void push_down(int u)
+	{
+		/* **** 标记下传 ****/
+		if(u && t[u].tag)
+		{
+			mark(t[u].ch[0], t[u].tag);
+			mark(t[u].ch[1], t[u].tag);
+			t[u].tag = 0;
+		}
+	}
+	inline bool get(int x){return x == t[t[x].fa].ch[1];}
+	inline void rotate(int x)
+	{
+		int y = t[x].fa, z = t[y].fa, son = get(x);
+		t[y].ch[son] = t[x].ch[son ^ 1];
+		t[t[x].ch[son ^ 1]].fa = y;
+		t[x].ch[son ^ 1] = y;
+		t[y].fa = x;
+		t[x].fa = z;
+		if(z) t[z].ch[y == t[z].ch[1]] = x;
+		push_up(y);
+		push_up(x);
+	}
+	void splay(int u, int v = 0)
+	{
+		for(int f = t[u].fa; (f = t[u].fa) != v; rotate(u))
+		{
+			if(t[f].fa != v) rotate(get(u) == get(f) ? f : u);
+		}
+		if(v == 0) rt = u;
+	}
+	int build(int l, int r, int fa) //记得赋值根
+	{
+		if(l > r) return 0;
+		int mid = l + r >> 1;
+		//***** 新建节点 *****
+		int cur = ++ np;
+		t[cur].fa = fa;
+		t[cur].cnt = 1;
+		t[cur].val = a[mid - 1];
+		t[cur].tag = 0;
+		t[cur].ch[0] = build(l, mid - 1, cur);
+		t[cur].ch[1] = build(mid + 1, r, cur);
+		push_up(cur);
+		
+		//*********************
+		return cur;
+	}
+	int kth(ll x) // 查找中序第x个数
+	{
+		int u = rt;
+		while(1)
+		{
+			push_down(u);
+			if(x <= t[t[u].ch[0]].sz) u = t[u].ch[0];
+			else
+			{
+				x -= t[t[u].ch[0]].sz + 1;
+				if(x == 0) return u;
+				u = t[u].ch[1];
+			}
+		}
+	}
+	void modify(int x, int y, ll val)
+	{
+		int l = x - 1, r = y + 1;
+		l = kth(l + 1); r = kth(r + 1);
+		splay(l, 0);
+		splay(r, l);
+		int u = t[rt].ch[1];
+		u = t[u].ch[0];
+		mark(u, val);
+	}
+	ll query(int x, int y)
+	{
+		int l = x - 1, r = y + 1;
+		l = kth(l + 1); r = kth(r + 1);
+		splay(l, 0);
+		splay(r, l);
+		int u = t[rt].ch[1];
+		u = t[u].ch[0];
+		return t[u].sum;
+	}
+	void init(ll* _a, int _n) // a为被维护序列[1···N]
+	{
+		a = _a;
+		n = _n;
+		a[0] = a[n + 1] = INF;
+		np = 0;
+		rt = Splay :: build(1, n + 2, 0);
+	}
+	/**** 使用手册 ****
+	# 初始化直接调用 init() 即可完成建树
+	# 调用 modify修改
+	# 调用 query询问
+	*/
+}

@@ -1,0 +1,56 @@
+namespace Binary{
+	//最小路径点覆盖： 总点数 - 最大匹配
+	// 出点： 1 ~ n
+	// 入点： (n + 1) ~ (2 * n)  但是出点可以不建出来
+	//最小路径重复点覆盖：多做一次传递闭包即可
+	const int N = 200 + 5;
+	int n;
+	bool ch[N][N];
+	int match[N]; // 只存右部点
+	bool st[N];
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++i)
+		{
+			fill(ch[i], ch[i] + N, 0);
+			match[i] = 0;
+		}
+	}
+	void addedge(int u, int v){ch[u][v] = 1;}
+	bool dfs(int u)
+	{
+		for(int v = 1; v <= n; ++v)
+		{
+			if(ch[u][v] && st[v] == 0)
+			{
+				st[v] = 1;
+				if(match[v] == 0 || dfs(match[v]))
+				{
+					match[v] = u;
+					return 1;
+				}
+			}
+		}
+		return 0;
+	}
+	int hungarian()
+	{
+		#define _REPEAT_
+		#ifdef _REPEAT_
+		for(int k = 1; k <= n; ++k)
+			for(int i = 1; i <= n; ++i)
+				for(int j = 1; j <= n; ++j)
+				{
+					ch[i][j] |= ch[i][k] & ch[k][j];
+				}
+		#endif
+		int res = 0;
+		for(int i = 1; i <= n; ++i)
+		{
+			fill(st, st + N, 0);
+			if(dfs(i)) res++;
+		}
+		return n - res; //
+	}
+}

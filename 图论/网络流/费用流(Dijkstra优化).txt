@@ -1,0 +1,77 @@
+namespace Costflow{
+	//一般取汇点为所用到的点的最后一个以提高初始化效率
+	const int N = 1e5 + 5;
+	const int M = 1e5 + 5;
+	typedef long long Data;
+	const Data inf = 0x3f3f3f3f3f3f3f3f;
+	int S, T;
+	int head[N], to[2 * M], nxt[2 * M], num;
+	Data cap[2 * M], dist[2 * M], h[N], cost[2 * M];
+	Data incf[N];
+	int pre[N];
+	priority_queue<pair<Data, Data>, vector<pair<Data, Data> >, greater<pair<Data, Data> > > q;
+	void init(int _S, int _T)
+	{
+		S = _S;
+		T = _T;
+		for(int i = 0; i <= T; ++i) //注意常数
+		{
+			head[i] = 0;
+		}
+		num = 1;
+	}
+	void addedge(int u, int v, Data _cap, Data _cost)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v; cap[num] = _cap; cost[num] = _cost;
+		head[u] = num;
+		
+		nxt[ ++ num] = head[v];
+		to[num] = u; cap[num] = 0; cost[num] = -_cost;
+		head[v] = num;
+	}
+	bool dijkstra()
+	{
+		fill(dist, dist + T + 1, inf); // 注意常数
+		dist[S] = 0;
+		q.push({0LL, S});
+		incf[S] = inf;
+		while(q.size())
+		{
+			auto x = q.top(); q.pop();
+			int u = x.second;
+			Data d = x.first;
+			if(d > dist[u]) continue;
+			
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				if(cap[e] <= 0) continue;	
+				int v = to[e];
+				if(dist[v] > dist[u] + cost[e] + h[u] - h[v])
+				{
+					dist[v] = dist[u] + cost[e] + h[u] - h[v];
+					incf[v] = min(incf[u], cap[e]);
+					pre[v] = e;
+					q.push({dist[v], v});
+				}
+			}
+		}
+		return dist[T] != inf;
+	}
+	pair<Data, Data> costflow()
+	{
+		pair<Data, Data> res = {0, 0};
+		while(dijkstra())
+		{
+			for(int u = 0; u < N; ++u) h[u] += dist[u];
+			for(int u = T, e = pre[u]; u != S; u = to[e ^ 1], e = pre[u])
+			{
+				cap[e] -= incf[T];
+				cap[e ^ 1] += incf[T];
+			}
+			res.first += incf[T];
+			res.second += h[T] * incf[T];
+		}
+		return res;
+	}
+}

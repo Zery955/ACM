@@ -1,0 +1,23 @@
+namespace Cartesian{
+	typedef long long Data;
+	const int N = 1e6 + 5;
+	int n;
+	int ch[N][2], RT;
+	int stk[N], top;
+	void init(Data* a, int _n)
+	{
+		n = _n;
+		top = 0;
+		for(int i = 1; i <= n; ++i)
+		{
+			ch[i][0] = ch[i][1] = 0;
+			while(top && a[i] > a[stk[top]])//´ó¸ù¶Ñ
+			{
+				ch[i][0] = stk[top --];
+			}
+			if(top) ch[stk[top]][1] = i;
+			else RT = i;
+			stk[ ++ top] = i;
+		}
+	}
+}

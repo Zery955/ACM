@@ -1,0 +1,2 @@
+https://codeforces.ml/contest/1401/problem/C
+改成相邻

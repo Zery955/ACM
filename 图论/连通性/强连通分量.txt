@@ -1,0 +1,92 @@
+namespace SCC{
+	const int N = 1e5 + 5;
+	const int M = 1e5 + 5;
+	typedef long long Data;
+	int n;
+	int head[N], to[2 * M], nxt[2 * M], num;
+	Data cap[2 * M];
+	int dfn[N],low[N], idfn;
+	int scc[N], iscc;
+	stack<int> stk;
+	bool in_stk[N];
+	#define _Save_SCC_
+	#ifdef _Save_SCC_
+		vector<int> sccp[N];
+	#endif
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++i)
+		{
+			head[i] = 0;
+			in_stk[i] = 0;
+			dfn[i] = 0;
+		}
+		num = 0;
+		iscc = 0;
+		idfn = 0;
+	}
+	void addedge(int u, int v, ll c = 1)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	void tarjan(int u)
+	{
+		low[u] = dfn[u] = ++idfn;
+		stk.push(u), in_stk[u] = 1;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(dfn[v] == 0)
+			{
+				tarjan(v);
+				low[u] = min(low[u], low[v]);
+			}
+			else if(in_stk[v])
+			{
+				low[u] = min(low[u], dfn[v]);
+			}
+		}
+		if(dfn[u] == low[u])
+		{
+			int temp;
+			++iscc;
+			#ifdef _Save_SCC_
+				sccp[iscc].clear();
+			#endif
+			do{
+				temp = stk.top(); stk.pop();
+				scc[temp] = iscc;
+				in_stk[temp] = 0;
+				#ifdef _Save_SCC_
+					sccp[iscc].push_back(temp);
+				#endif
+				
+			}while(temp != u);
+		}
+	}
+	//******************** 缩点 ********************
+	void rebuild()
+	{
+		for(int i = 1; i <= n; ++i)
+			if(dfn[i] == 0) tarjan(i);
+		//缩点后的强连通编号的逆序就符合拓扑序
+		//注意此时的点操作应该建立在强连通编号上
+		for(int u = 1; u <= n; ++u)
+		{
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				int U = scc[u];
+				int V = scc[v];
+				if(U != V)//产生边
+				{
+					
+				}
+			}
+		}
+	}
+}

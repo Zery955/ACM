@@ -1,0 +1,97 @@
+namespace SegmentTree{
+	const int N = 2e3 + 5;
+	typedef long long ll;
+	struct node	//设计线段树节点
+	{
+		int l, r;
+		ll tmax, lmax, rmax, sum;
+	}t[N * 4];
+	inline void push_up(node &rt, const node &ls, const node &rs)//定义上传操作
+	{
+		rt.tmax = max(max(ls.tmax, rs.tmax), ls.rmax + rs.lmax);
+		rt.lmax = max(ls.lmax, ls.sum + rs.lmax);
+		rt.rmax = max(rs.rmax, rs.sum + ls.rmax);
+		rt.sum = ls.sum + rs.sum;
+	}
+	void build(int k, int l, int r)
+	{
+		if(l == r)//定义叶节点初始化操作
+		{	
+			t[k] = {l, r, 0, 0, 0, 0};
+			return;
+		}
+		int mid = (l + r) / 2;
+		build(k << 1, l, mid);
+		build(k << 1 | 1, mid + 1, r);
+		push_up(t[k], t[k << 1], t[k << 1 | 1]);
+		//定义非叶节点的初始化操作
+		t[k].l = l, t[k].r = r;
+	}
+	void modify(int k, int x, ll val)
+	{
+		if(t[k].l == t[k].r)
+		{
+			t[k].sum = t[k].lmax = t[k].rmax = t[k].tmax = t[k].sum + val;
+			return;
+		}
+		int mid = t[k].l + t[k].r >> 1;
+		if(x <= mid) modify(k << 1, x, val);
+		else modify(k << 1 | 1, x, val);
+		push_up(t[k], t[k << 1], t[k << 1 | 1]);
+	}
+//--------------------主程序--------------------
+//以上的线段树只是辅助
+	struct point{
+		int x, y;
+		ll w;
+	};
+	vector<point> p;
+	vector<pair<int, ll> > X[N];
+	vector<int> numx, numy;
+	void init() // 记得初始化
+	{
+		p.clear();
+		numx.clear();
+		numy.clear();
+	}
+	void addpoint(int x, int y, ll w)
+	{
+		p.push_back({x, y, w});
+	}
+	ll main()
+	{
+		int n = p.size();
+		for(auto &i: p)
+		{
+			numx.push_back(i.x);
+			numy.push_back(i.y);
+		}
+		sort(numx.begin(), numx.end());
+		sort(numy.begin(), numy.end());
+		numx.erase(unique(numx.begin(), numx.end()), numx.end());
+		numy.erase(unique(numy.begin(), numy.end()), numy.end());
+		int ni = numx.size();
+		int mi = numy.size();
+		for(int i = 0; i <= ni; ++i) X[i].clear();
+		for(auto &i: p)
+		{
+			i.x = lower_bound(numx.begin(), numx.end(), i.x) - numx.begin() + 1;
+			i.y = lower_bound(numy.begin(), numy.end(), i.y) - numy.begin() + 1;
+			X[i.x].push_back({i.y, i.w});
+		}
+		ll res = 0;
+		for(int i = 1; i <= ni; ++i) //枚举第一行
+		{
+			build(1, 1, mi);
+			for(int j = i; j <= ni; ++j) //枚举最后一行
+			{
+				for(auto &k : X[j])
+				{
+					modify(1, k.xx, k.yy);
+				}
+				res = max(res, t[1].tmax);
+			}
+		}
+		return res;
+	}
+}

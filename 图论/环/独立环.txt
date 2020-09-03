@@ -1,0 +1,51 @@
+namespace Circle
+{
+	// *查找无向连通图的独立环(环上非相邻点互相独立，即没有边)
+	// *环的性质：间隔取点即可得到大小为 (n + 1) / 2 的独立集
+	const int N = 1e5 + 5;
+	const int M = 2e5 + 5;
+	int pos[N];
+	int head[N], to[M * 2], nxt[M * 2], num;
+	vector<int> way;
+	vector<int> cyc;
+	void init(int n)
+	{
+		for(int i = 0; i <= n; ++i)
+		{
+			head[i] = 0;
+			pos[i] = -1;
+		}
+		num = 0;
+	}
+	void addedge(int u, int v)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		head[u] = num;
+	}
+	bool circle(int u = 1)
+	{
+		pos[u] = way.size();
+		way.push_back(u);
+		int low = -1;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(pos[v] != -1 && pos[u] - pos[v] > 1)
+				low = max(low, pos[v]);
+		}
+		if(low != -1) // 存在返祖边
+		{
+			for(int i = low; i <= pos[u]; ++i)
+				cyc.push_back(way[i]);
+			return 1;
+		}
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(pos[v] == -1 && circle(v)) return 1; 
+		}
+		way.pop_back();
+		return 0;
+	}
+}

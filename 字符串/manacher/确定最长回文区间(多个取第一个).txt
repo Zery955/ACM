@@ -1,0 +1,45 @@
+namespace Manacher{
+	const int N = 1e6 + 5;
+	char s[N * 2];
+	int n;
+	int p[N * 2];
+	void init(char *_s, int _n)
+	{
+		_s --;
+		n = _n * 2;
+		for(int i = n; i >= 2; i -= 2)
+		{
+			s[i] = _s[i / 2];
+			s[i - 1] = '#';
+		}
+		s[0] = '!';
+		s[ ++ n] = '#';
+		s[n + 1] = 0;
+	}
+	pair<int, int> manacher()
+	{
+		int po, r = 0;
+		pair<int, int> res = {0, 0};
+		for(int i = 1; i <= n; ++ i)
+		{
+			if(i < r) p[i] = min(p[po * 2 - i], r - i + 1);
+				else p[i] = 1;
+			while(s[i - p[i]] == s[i + p[i]]) p[i] ++ ;
+			if(i + p[i] - 1 > r) 
+			{
+				r = i + p[i] - 1;
+				po = i;
+			}
+			int len = r - po + 1;
+			int l = po - len + 1;
+			if(r - l + 1 > res.second - res.first + 1)
+			{
+				res = {l, r};
+			}
+		}
+		if(s[res.first] == '#') res.first ++, res.second --;
+		res.first /= 2;
+		res.second /= 2;
+		return res;
+	}
+}

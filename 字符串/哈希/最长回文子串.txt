@@ -1,0 +1,58 @@
+namespace Hash{
+	typedef unsigned long long ull;
+	const ull base = 131; // 13331;
+	const int N = 2e6 + 5; //双倍空间
+	int n;
+	char s[N];
+	ull hl[N], hr[N], p[N];
+	inline int id(char c){ return c - 'a';}
+	void init(char *S, int _n)
+	{
+		strcpy(s + 1, S);
+		n = 2 * _n;
+		//预处理 间隔插入原字符集合中不存在的元素
+		for(int i = n; i > 0; i -= 2)
+		{
+			s[i] = s[i / 2];
+			s[i - 1] = 'z' + 1;
+		}
+		s[n + 1] = 0;
+		p[0] = 1;
+		hr[n + 1] = 0;
+		//双向哈希
+		for(int i = 1, j = n; i <= n; ++i, j--)
+		{
+			int cl = id(s[i]);
+			int cr = id(s[j]);
+			hl[i] = hl[i - 1] * base + cl;
+			hr[j] = hr[j + 1] * base + cr;
+			p[i] = p[i - 1] * base;
+		}
+	}
+	inline ull queryL(int l, int r)
+	{
+		return hl[r] - hl[l - 1] * p[r - l + 1];
+	}
+	inline ull queryR(int l, int r)
+	{
+		return hr[l] - hr[r + 1] * p[r - l + 1];
+	}
+	int cal()
+	{
+		int res = 0;
+		for(int i = 1; i <= n; ++i)
+		{
+			int l = 0, r = min(i - 1, n - i);
+			while(l <= r)
+			{
+				int mid = (l + r) / 2;
+				if(queryL(i - mid , i) == queryR(i, i + mid))
+					l = mid + 1;
+				else r = mid - 1;
+			}
+			if(s[i - r] == 'z' + 1) res = max(res, r); //分割符多一个
+			else res = max(res, r + 1);//字符多一个
+		}
+		return res;
+	}
+}

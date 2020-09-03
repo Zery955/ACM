@@ -1,0 +1,56 @@
+namespace SegmentTree{
+	const int N = 5e5 + 5;
+	typedef long long ll;
+	struct node	//设计线段树节点
+	{
+		int l, r;
+		ll tmax, lmax, rmax, sum;
+	}t[N * 4];
+	void push_up(node &rt, const node &ls, const node &rs)//定义上传操作
+	{
+		rt.tmax = max(max(ls.tmax, rs.tmax), ls.rmax + rs.lmax);
+		rt.lmax = max(ls.lmax, ls.sum + rs.lmax);
+		rt.rmax = max(rs.rmax, rs.sum + ls.rmax);
+		rt.sum = ls.sum + rs.sum;
+	}
+	void build(int k, int l, int r)
+	{
+		if(l == r)//定义叶节点初始化操作
+		{	
+			t[k] = {l, r, a[l], a[l], a[l], a[l]};
+			return;
+		}
+		int mid = (l + r) / 2;
+		build(k << 1, l, mid);
+		build(k << 1 | 1, mid + 1, r);
+		push_up(t[k], t[k << 1], t[k << 1 | 1]);
+		//定义非叶节点的初始化操作
+		t[k].l = l, t[k].r = r;
+	}
+	void modify(int k, int x, int val)
+	{
+		if(t[k].l == t[k].r)
+		{
+			t[k].sum = t[k].lmax = t[k].rmax = t[k].tmax = val;
+			return;
+		}
+		int mid = t[k].l + t[k].r >> 1;
+		if(x <= mid) modify(k << 1, x, val);
+		else modify(k << 1 | 1, x, val);
+		push_up(t[k], t[k << 1], t[k << 1 | 1]);
+	}
+	node query(int k, int x, int y)
+	{
+		if(x <= t[k].l && t[k].r <= y) return t[k];
+		int mid = (t[k].l + t[k].r) / 2;
+		if(y <= mid) return query(k << 1, x, y);
+		else if(x > mid) return query(k << 1 | 1, x, y);
+		else
+		{
+			node L = query(k << 1, x, y), R = query(k << 1 | 1, x, y);
+			node rt;
+			push_up(rt, L, R);
+			return rt;
+		}
+	}
+}

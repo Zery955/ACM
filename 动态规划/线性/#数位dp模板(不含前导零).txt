@@ -1,0 +1,42 @@
+ll dp(int n)
+{
+	int B = 10;
+	if(n == 0) return 0; //特判边界
+	vector<int> nums;
+	while(n) nums.push_back(n % B), n /= B;
+	ll res = 0;
+	ll last = -2;
+	for(int i = nums.size() - 1; i >= 0; --i)
+	{
+		int x = nums[i];
+		//所有左侧叶节点的方案(0 - x - 1)
+		if(x > 0) // 注意枚举范围
+		{
+			for(int j = (i == nums.size() - 1); j < x; ++ j)
+			{
+				
+			}
+
+		}
+		//当前填 x 
+		{
+			if()  // 前几位满足条件
+			{
+				
+			}
+			else break; //前几位已经不满足条件
+		}
+		// 最右侧叶结点的方案(即区间上限)
+		if(i == 0)
+		{
+	
+		}
+	}
+	// 特殊处理前导零
+	for(int i = 1; i < nums.size(); ++ i)
+		for(int j = 1; j <= 9; ++ j)
+		{
+			
+		}
+	return res;
+}

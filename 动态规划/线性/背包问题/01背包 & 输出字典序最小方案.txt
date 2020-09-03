@@ -1,0 +1,44 @@
+namespace Backpack01{
+	const int N = 1e4 + 5; //花费上限
+	const int M = 1e3 + 5; // 物品数量
+	typedef int Data;
+	struct node{
+		int c; // 物品花费
+		Data w; //物品价值
+		int i;
+	}a[M];
+	vector<int> way; // 方案 & 字典序最小
+	Data f[M][N];
+	int n;
+	void init()
+	{
+		n = 0;
+	}
+	void add(int c, Data w)
+	{
+		a[n + 1] = {c, w, n + 1};
+		n ++;
+	}
+	Data backpack01(int cmax)
+	{
+		memset(f, 0, sizeof f);
+		for(int i = n; i >= 1; --i) //逆序做才能从小的开始取
+		{
+			for(int j = 0; j <= cmax; ++j)
+			{
+				f[i][j] = f[i + 1][j];
+				if(j >= a[i].c) f[i][j] = max(f[i][j], f[i + 1][j - a[i].c] + a[i].w);
+			}
+		}
+		Data j = cmax; way.clear();
+		for(int i = 1; i <= n; ++i)
+		{
+			if(j >= a[i].c && f[i][j] == f[i + 1][j - a[i].c] + a[i].w)
+			{
+				way.push_back(i);
+				j -= a[i].c;
+			}
+		}
+		return f[1][cmax];
+	}
+}

@@ -1,0 +1,63 @@
+namespace MinCircle{
+	typedef long long Edge; //设定边的类型
+	Edge inf = 1e16; // 设定边不存在时候的值
+	const int V = 100 + 5;
+	int n;
+	Edge g[V][V], d[V][V], minlen;
+	vector<int> path;
+	int pos[V][V];
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++i)
+			for(int j = 0; j <= n; ++j)
+			{
+				g[i][j] = inf;
+				d[i][j] = inf;
+				if(i == j) g[i][j] = 0, d[i][j] = 0; //设置自环情况
+				pos[i][j] = 0;
+			}
+		path.clear();
+		minlen = inf;
+	}
+	inline void addedge(int u, int v, Edge c)
+	{
+		g[u][v] = min(g[u][v], c);
+		d[u][v] = g[u][v];
+	}
+	void get_path(int u, int v)
+	{
+		if(pos[u][v] == 0) return;
+		int k = pos[u][v];
+		get_path(u, k);
+		path.push_back(k);
+		get_path(k, v);
+	}
+	void mincircle()
+	{
+		for(int k = 1; k <= n; ++k)
+		{
+			for(int i = 1; i < k; ++i)
+				for(int j = i + 1; j < k; ++j)
+				{
+					Edge cur = d[i][k] + d[k][j] + g[i][j];
+					if(cur < minlen)
+					{
+						minlen = cur;
+						path.clear();
+						path.push_back(k);
+						path.push_back(i);
+						get_path(i, j);
+						path.push_back(j);
+					}
+				}
+			for(int i = 1; i <= n; ++i)
+				for(int j = 1; j <= n; ++j)
+					if(g[i][j] > g[i][k] + g[k][j])
+					{
+						pos[i][j] = k;
+						g[i][j] = g[i][k] + g[k][j];
+					}
+		}
+	}
+}

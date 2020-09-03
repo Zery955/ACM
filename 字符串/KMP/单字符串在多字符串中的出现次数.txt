@@ -1,0 +1,50 @@
+namespace KMP{
+	//O(N + M)
+	const int N = 1e6 + 5; //模式串长度
+	typedef char Data; // 串类型
+	Data *P; //模式串
+	Data T[N]; //有间隔的分串合并
+	int np, nt;
+	int fail[N];
+	//下标从 1 开始
+	void init(Data* _P, int _np)
+	{
+		np = _np;
+		P = _P - 1;	
+		nt = 0;
+	}
+	void addstring(Data *s, int n)
+	{
+		for(int i = 0; i < n; ++ i) T[ ++ nt] = s[i];
+		T[ ++ nt] = '#'; //分隔
+	}
+	void self()
+	{
+		fail[1] = 0;
+		int j = 0;
+		for(int i = 2; i <= np; ++i)
+		{
+			while(j && P[j + 1] != P[i]) j = fail[j];
+			if(P[j + 1] == P[i]) j++;
+			fail[i] = j;
+		}
+	}
+	int kmp()
+	{
+		self();
+		int res = 0;
+		int j = 0;
+		for(int i = 1; i <= nt; ++i)
+		{
+			while(j && P[j + 1] != T[i]) j = fail[j];
+			if(P[j + 1] == T[i]) j++;
+			if(j == np)
+			{
+				//j = 0; //不重叠
+				j = fail[j];//可重叠
+				res ++;
+			}
+		}
+		return res;
+	}
+}

@@ -1,0 +1,172 @@
+#define _BITS_STDCPP_H_
+#ifdef _BITS_STDCPP_H_
+    #include <bits/stdc++.h>
+#else
+    #include <iostream>
+    #include <cstdio>
+    #include <algorithm>
+    #include <cstring>
+    #include <bitset>
+    #include <vector>
+    #include <map>
+    #include <queue>
+    #include <cmath>
+#endif
+using namespace std;
+//************************************
+typedef unsigned long long ull;
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef pair<long long, long long> pll;
+typedef pair<double, double> pdd;
+typedef bitset<30001> BIT;
+const double eps = 1e-10;
+template<typename T> void read(T &x){
+    int f = 1;x = 0;char s = getchar();
+    while(s < '0'|| s > '9'){if(s == '-') f = -1; s = getchar();}
+    while(s >= '0' && s <= '9'){x = x * 10 + s - '0'; s = getchar();}
+    x *= f;
+}
+template<typename T> void print(T x){
+    if(x < 0)putchar('-'),x = -x;
+    if(x > 9) print(x / 10);
+    putchar(x % 10 + '0');
+}
+template<typename T1, typename T2> inline void read(T1 &a, T2 &b){read(a); read(b);}
+template<typename T1, typename T2, typename T3> inline void read(T1 &a, T2 &b, T3 &c){read(a); read(b); read(c);}
+template<typename T1, typename T2, typename T3, typename T4> inline void read(T1 &a, T2 &b, T3 &c, T4 &d){read(a); read(b); read(c); read(d);}
+inline void reads(char *a){scanf("%s", a);}
+inline void reads(char *a, char *b){scanf("%s%s",a, b);}
+inline void reads(char *a, char *b, char *c){scanf("%s%s%s", a, b, c);}
+inline void reads(char *a, char *b, char *c, char *d){scanf("%s%s%s%s", a, b, c, d);}
+template<typename T1, typename T2> inline void print(T1 a, T2 b){print(a); putchar(' '); print(b);}
+template<typename T1, typename T2, typename T3> inline void print(T1 a, T2 b, T3 c){print(a); putchar(' '); print(b); putchar(' '); print(c);}
+template<typename T1, typename T2, typename T3, typename T4> inline void print(T1 a, T2 b, T3 c, T4 d){print(a); putchar(' '); print(b); putchar(' '); print(c); putchar(' ');print(d);}
+inline void prints(char *a){printf("%s", a);}
+inline void prints(char *a, char *b){printf("%s %s", a, b);}
+inline void prints(char *a, char *b, char *c){printf("%s %s %s", a, b, c);}
+inline void prints(char *a, char *b, char *c, char *d){printf("%s %s %s %s", a, b, c, d);}
+inline void Yes(bool a){if(a) puts("Yes"); else puts("No");}
+inline void YES(bool a){if(a) puts("YES"); else puts("NO");}
+inline void yes(bool a){if(a) puts("yes"); else puts("no");}
+template<typename T> inline T sqr(T x){return x * x;}
+template<typename T> inline T random(T R){return (double)rand() / RAND_MAX * R + ((T)0.5 == 0 ? 0.5 : 0.0);}
+template<typename T> inline T random(T L, T R){return random(R - L) + L;}
+template<typename T> inline T Max(const T &a, const T &b, const T &c){return max(max(a, b), c);}
+template<typename T> inline T Max(const T &a, const T &b, const T &c, const T &d){return max(Max(a, b, c), d);}
+template<typename T> inline T Min(const T &a, const T &b, const T &c){return min(min(a, b), c);}
+template<typename T> inline T Min(const T &a, const T &b, const T &c, const T &d){return min(Min(a, b, c), d);}
+//******************** º∆À„º∏∫Œ ********************
+inline int sgn(double d){if(fabs(d) < eps) return 0;if(d > 0) return 1;return -1;}
+struct Point{
+    double x, y;
+    Point():x(0.0), y(0.0){}
+    Point(double a, double b = 0.0): x(a), y(b){}
+    Point(const Point& p): x(p.x), y(p.y){}
+    Point operator + (const Point& a){return {x + a.x, y + a.y};}
+    Point operator - (const Point& a){return {x - a.x, y - a.y};}
+    double operator * (const Point& a){return x * a.x + y * a.y;}
+    double operator ^ (const Point& a){return x * a.y - y * a.x;}
+    bool operator == (const Point& p){return sgn(x - p.x) == 0 && sgn(y - p.y) == 0;}
+    bool operator < (const Point &p) const{
+        if(sgn(x - p.x) == 0)
+            return sgn(y - p.y) == -1;
+        return sgn(x - p.x) == -1;
+    }
+}typedef Vector;
+double distance(const Point &a, const Point &b)
+{
+    double x = a.x - b.x;
+    double y = a.y - b.y;
+    return sqrt(x * x + y * y);
+}
+//**************************************************
+ll ksm(ll a, ll k, ll Mod){ll res = 1; while(k){if(k & 1) (res *= a) %= Mod; (a *= a) %= Mod; k >>= 1;} return res % Mod;}
+inline ll inv(ll a, ll Mod){return ksm(a, Mod - 2, Mod);}
+inline void cap_bit(ll x){ for(int i = 63; i >= 0; --i)if(x >> i & 1) {printf("Need (%d) = %lld\n", i + 1, 1LL << (i + 1)); return;}}
+inline void cal_space(ll x){printf("%lld MB\n" ,x >> 20);}
+const int dx4[] = {0, 0, -1, 1};
+const int dy4[] = {-1, 1, 0, 0};
+const int dx6[] = {1, -1, 0, 0, 0, 0};
+const int dy6[] = {0, 0, 1, -1, 0, 0};
+const int dz6[] = {0, 0, 0, 0, 1, -1};
+#define nbsp putchar(' ')
+#define br puts("")
+#define arr0(a) cout << #a << " = " << a;
+#define arr1(a, x) cout << #a << "[" << x << "] = " << a[x]
+#define arr2(a, x, y) cout << #a << "[" << x << "][" << y << "] = "<< a[x][y]
+#define pi acos(-1.0)
+#define mp(x, y) make_pair(x, y)
+#define gcd(x, y) __gcd(x, y)
+#define all(x) (x).begin(), (x).end()
+#define pb push_back
+#define xx first
+#define yy second
+#define lowbit(x) (x) & (-x)
+#define Mod(a, mod) if((a) >= (mod)) (a) %= (mod)
+const int N = 2e5 + 5;
+const int M = 10 + 5;
+ll Mod = 998244353;
+//************************************
+int t[N], vn, n;
+struct node{
+	int x, y;
+	bool operator < (node a)
+	{
+		return x > a.x;
+	}
+}p[N];
+void modify(int x, int val)
+{
+	for(int i = x; i <= vn; i += i & - i)
+		t[i] += val;
+}
+int query(int x)
+{
+	int res = 0;
+	for(int i = x; i >= 1; i -= i & -i)
+		res += t[i];
+	return res;
+}
+vector<int> nums;
+int cnt[N];
+int main()
+{
+	read(n);
+	for(int i = 1; i <= n; ++i)
+	{
+		read(p[i].x, p[i].y);
+		nums.pb(p[i].y);
+	}
+	sort(all(nums));
+	nums.erase(unique(all(nums)), nums.end());
+	for(int i = 1; i <= n; ++i)
+		p[i].y = lower_bound(all(nums), p[i].y) - nums.begin() + 1,
+		cnt[p[i].y] ++;
+	vn = nums.size();
+	sort(p + 1, p + n + 1);
+	ll ans = n;
+	for(int i = 1; i <= n; i ++)
+	{
+		int j = i;
+		while(j < n && p[j + 1].x == p[j].x) j++;
+		for(int k = i; k <= j; ++k)
+		{
+			ll D = query(p[k].y - 1);
+			ll U = query(vn) - query(p[k].y);
+			ans += D * U % Mod;
+			ans %= Mod;
+		}
+		for(int k = i; k <= j; ++k) modify(p[k].y, 1);
+		i = j;
+	}
+	ans += (ll) n * (n - 1) / 2 % Mod;
+	ans %= Mod;
+	for(int i = 1; i <= vn; ++i)
+	{
+		ans -= (ll)cnt[i] * (cnt[i] - 1) / 2;
+		ans = (ans % Mod + Mod) % Mod;
+	}
+	print(ans);
+    return 0;
+}

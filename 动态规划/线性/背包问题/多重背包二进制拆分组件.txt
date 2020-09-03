@@ -1,0 +1,14 @@
+void split(int x, vector<int> &res)
+{
+	for(int i = 0; ; i++)
+	{
+		int bit = 1 << i;
+		if(x >= bit)
+		{
+			res.push_back(bit);
+			x -= bit;
+		}
+		else break;
+	}
+	if(x) res.push_back(x);
+}

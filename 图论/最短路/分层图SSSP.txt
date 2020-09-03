@@ -1,0 +1,71 @@
+namespace SSSP{
+    typedef long long ll;
+    typedef pair<ll, ll> pll;
+    const int V = 2e6 + 5;  //点数
+    const int M = 2e6 + 5;  //边数
+    const ll inf = 1e14;
+    int n, k; // 原图点数,层数
+    int head[V], num, to[2 * M], nxt[2 * M];
+    ll cap[2 * M];
+    bool vis[V];
+    priority_queue<pll , vector<pll>, greater<pll> > q;
+    void init(int _n, int _k)   //初始化点数量 和 层数
+    {
+        for(int i = 0; i < V; ++i)
+        {
+            head[i] = 0;
+        }
+        num = 0;
+        n = _n;
+        k = _k;
+    }
+    void _addedge(int u, int v, ll c) // 加单条边的元操作
+    {
+        nxt[++ num] = head[u];
+        to[num] = v;
+        cap[num] = c;
+        head[u] = num;
+    }
+    void addedge(int u, int v, ll c) // 分层图统一加边
+    {
+        for(int i = 0; i <= k; ++i) // 层内建边
+        {
+            int U = u + i * n;
+            int V = v + i * n;
+            _addedge(U, V, c);
+        }
+        for(int i = 0; i < k; ++i) // 层间建边
+        {
+            int U = u + i * n;
+            int V = v + (i + 1) * n;
+            _addedge(U, V, 0);
+        }
+    }
+    void Dijkstra(int s,ll* dis)
+    {
+        for(int i = 0; i <= n * (k + 1); ++i) //应该包含 k + 1 张图
+        {
+            dis[i] = inf;
+            vis[i] = 0;
+        }          
+        dis[s] = 0;
+        q.push({0, s});
+        while(q.size())
+        {
+            int u = q.top().second;
+            ll d = q.top().first;
+            q.pop();
+            if(vis[u]) continue;
+            vis[u] = 1;
+            for(int e = head[u]; e; e = nxt[e])
+            {
+                int v = to[e];
+                if(dis[v] > d + cap[e])
+                {
+                    dis[v] = d + cap[e];
+                    q.push({dis[v], v});
+                }
+            }
+        }
+    }
+}

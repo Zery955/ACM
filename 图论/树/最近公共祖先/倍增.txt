@@ -1,0 +1,77 @@
+namespace LCA{
+	typedef int Edge; // 边的类型
+	const int N = 4e4 + 5; //节点数目 
+	const int M = 30;  //倍增上限
+	int rt;
+	int fa[N][M];
+	Edge dep[N];
+	int head[N], to[2 * N], nxt[2 * N], num;
+	Edge cap[2 * N];
+	int q[N];
+	bool is_bfs;
+	void init(int _rt = 1)
+	{
+		for(int i = 0; i < N; ++i)
+		{
+			head[i] = 0;
+			for(int j = 0; j < M; ++j)
+				fa[i][j] = 0;
+		}
+		num = 0;
+		rt = _rt;
+		is_bfs = 0;
+	}
+	void set_root(int _rt){rt = _rt;}
+	void addedge(int u, int v, Edge c = 1)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	void bfs()
+	{
+		if(is_bfs) return;
+		fill(dep, dep + N, 0);
+		fa[rt][0] = 0; dep[rt] = 1;
+		int hh = 0, tt = 0;
+		q[0] = rt;
+		while(hh <= tt)
+		{
+			int u = q[hh ++];
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				if(dep[v] == 0)
+				{
+					dep[v] = dep[u] + cap[e];
+					q[++ tt] = v;
+					fa[v][0] = u;
+					for(int i = 1; i < M; ++i)
+						fa[v][i] = fa[fa[v][i - 1]][i - 1];
+				}
+			}
+		}
+		is_bfs = 1;
+	}
+	int lca(int x, int y)
+	{
+		bfs();
+		if(dep[x] < dep[y]) swap(x, y);
+		for(int i = M - 1; i >= 0; --i)
+		{
+			if(dep[fa[x][i]] >= dep[y])
+				x = fa[x][i];
+		}
+		if(x == y) return x;
+		for(int i = M - 1; i >= 0; --i)
+		{
+			if(fa[x][i] != fa[y][i])
+			{
+				x = fa[x][i];
+				y = fa[y][i];
+			}
+		}
+		return fa[x][0];
+	}
+}

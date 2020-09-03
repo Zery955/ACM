@@ -1,0 +1,105 @@
+namespace Maxflow{
+	typedef long long ll;
+	const int N = 200 + 5; // 点数
+	const int M = 1e5 + N + 5; // 边数的一半
+	const ll INF = 1e17;
+	int S, T, s, t, n;//源点与汇点
+	int head[N], nxt[2 * M], to[2 * M], num;
+	ll cap[2 * M];
+	int lev[N], q[N], cur[N]; //cur 为当前弧优化
+	ll A[N], FLOW;
+	void init(int _n, int _s, int _t)
+	{
+		n = _n;
+		S = 0;
+		T = n + 1;
+		s = _s;
+		t = _t;
+		for(int i = 0; i < N ; ++i)
+		{
+			head[i] = 0;
+			A[i] = 0;
+		}
+		num = 1;
+		FLOW = 0;
+	}
+	void addedge(int u, int v, ll _cap) // 普通加边
+	{
+		nxt[++ num] = head[u]; to[num] = v; cap[num] = _cap;head[u] = num;
+		nxt[++ num] = head[v]; to[num] = u; cap[num] = 0;head[v] = num;
+	}
+	void addedge(int u, int v, ll l, ll r) //上下界加边
+	{
+		nxt[++ num] = head[u]; to[num] = v; cap[num] = r - l;head[u] = num;
+		nxt[++ num] = head[v]; to[num] = u; cap[num] = 0;head[v] = num;
+		A[u] -= l; A[v] += l;
+	}
+	bool bfs()
+	{
+		memset(lev, 0, sizeof lev);
+		int hh = 0, tt = 0;
+		q[0] = S; lev[S] = 1; cur[S] = head[S];
+		while(hh <= tt)
+		{	
+			int u = q[hh ++ ];
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				if(cap[e] > 0 && lev[v] == 0)
+				{
+					lev[v] = lev[u] + 1;
+					cur[v] = head[v];
+					if(v == T) return 1;
+					q[ ++ tt] = v;
+				}
+			}
+		}
+		return 0;
+	}
+	ll dfs(int u, ll limit)
+	{
+		if(u == T) return limit;
+		ll flow = 0;
+		for(int e = head[u]; e && flow < limit; e = nxt[e])
+		{
+			cur[u] = e;
+			int v = to[e];
+			if(cap[e] && lev[v] == lev[u] + 1)
+			{
+				ll f = dfs(v, min(cap[e], limit - flow));
+				if(f == 0) lev[v] = -1;
+				else
+				{
+					cap[e] -= f; cap[e ^ 1] += f; flow += f;
+				}
+			}
+		}
+		return flow;
+	}
+	ll dinic()
+	{
+		ll flow = 0;
+		while(bfs())
+		{
+			ll f;
+			while(f = dfs(S, INF)) flow += f;
+		}
+		return flow;
+	}
+	ll maxflow()
+	{
+		for(int i = 1; i <= n; ++ i)
+		{
+			if(A[i] > 0) addedge(S, i, 0, A[i]), FLOW += A[i];
+			else if(A[i] < 0) addedge(i, T, 0, -A[i]);
+		}
+		addedge(t, s, INF);
+		ll ans = dinic();
+		if(FLOW != ans) return -1;
+		ans = cap[num];
+		cap[num] = cap[num ^ 1] = 0;
+		S = s; T = t;
+		ans += dinic();
+		return ans;
+	}
+}

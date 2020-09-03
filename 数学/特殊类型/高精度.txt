@@ -1,0 +1,83 @@
+struct Big{
+	static const int N = 100 + 5;
+	int a[N];
+	void clear(){for(int i = 0; i < N; ++i) a[i] = 0;}
+	Big(){clear();}
+	int operator[](int x){return a[x];}
+	void read()
+	{
+		static char s[N];
+		scanf("%s", s);
+		clear();
+		int len = strlen(s);
+		for(int i = 0; i < len; ++i)
+			a[i] = s[len - i - 1] - '0';
+	}
+	void print()
+	{
+		int i;
+		for(i = N - 1; i >= 1; --i) if(a[i] != 0) break;
+		for(; i >= 0; --i) putchar(a[i] + '0');
+	}
+	void operator = (const char b[])
+	{
+		int len = strlen(b);
+		clear();
+		for(int i = len - 1; i >= 0; -- i) a[i] = b[len - 1 - i] - '0';
+	}
+	Big operator + (const Big &b)
+	{
+		Big c;
+		for(int i = 0; i < N; ++i)
+		{
+			c.a[i] += a[i] + b.a[i];
+			if(c.a[i] >= 10)
+			{
+				c.a[i] -= 10;
+				c.a[i + 1] ++ ;
+			}
+		}
+		return c;
+	}
+	Big operator - (const Big &b) // 非负
+	{
+		Big c;
+		for(int i = 0; i < N; ++i)
+		{
+			c.a[i] += a[i] - b.a[i];
+			if(c.a[i] < 0)
+			{
+				c.a[i] += 10;
+				c.a[i + 1] -- ;
+			}
+		}
+		return c;
+	}
+	Big operator * (const Big &b)
+	{
+		Big c;
+		for(int i = 0; i < N - 1; ++ i)
+		{
+			for(int j = 0; j <= i; ++ j) c.a[i] += a[j] * b.a[i - j];
+			if(c.a[i] >= 10)
+			{
+				c.a[i + 1] += c.a[i] / 10;
+				c.a[i] %= 10;
+			}
+		}
+		return c;
+	}
+	Big operator ^ (int k)
+	{
+		Big res;
+		res = "1";
+		Big temp = (*this);
+		while(k)
+		{
+			if(k & 1) res = res * temp;
+			temp = temp * temp;
+			k >>= 1;
+		}
+		return res;
+	}
+};

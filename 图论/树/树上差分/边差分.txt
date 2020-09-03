@@ -1,0 +1,91 @@
+namespace Difference{
+//******************** 树上边差分 ********************
+	const int N = 1e5 + 5;
+	const int M = 30;
+	typedef int Data;
+	int n, rt;
+	int head[N], to[2 * N], nxt[2 * N], num;
+	Data cap[2 * N];
+	int f[N][M], dep[N];
+	Data w[N];
+	void init(int _n, int _rt = 1)
+	{
+		n = _n;
+		rt = _rt;
+		for(int i = 0; i <= n; ++i)
+		{
+			head[i] = 0;
+			w[i] = 0;
+		}
+		num = 0;
+	}
+	void set_root(int _rt){ rt = _rt;}
+	void addedge(int u, int v, Data c = 1)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	void dfs(int u, int fa)
+	{
+		dep[u] = dep[fa] + 1;
+		f[u][0] = fa;
+		for(int i = 1; i < M; ++i) f[u][i] = f[f[u][i - 1]][i - 1];
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(v == fa) continue;
+			dfs(v, u);
+		}
+	}
+	void build()
+	{
+		dfs(rt, 0);
+	}
+	int lca(int x, int y)
+	{
+		if(dep[x] < dep[y]) swap(x, y);
+		for(int i = M - 1; i >= 0; --i)
+		{
+			if(dep[f[x][i]] >= dep[y])
+				x = f[x][i];
+		}
+		if(x == y) return x;
+		for(int i = M - 1; i >= 0; --i)
+		{
+			if(f[x][i] != f[y][i])
+			{
+				x = f[x][i];
+				y = f[y][i];
+			}
+		}
+		return f[x][0];
+	}
+	void modify(int x, int y)
+	{
+		int a = lca(x, y);
+		w[x] ++ ; w[y] ++ ;
+		w[a] -= 2;
+	}
+	void _dfs(int u, int fa)
+	{
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(v == fa) continue;
+			_dfs(v, u);
+			w[u] += w[v];
+		}
+	}
+	void update()
+	{
+		_dfs(rt, 0);
+	}
+/* ******************** 使用手册 ********************
+	#1 init()初始化
+	#2 加边结束后使用 build() 倍增预处理
+	#3 modify() 静态修改
+	#4 修改结束后使用 update() 更新差分
+*/
+}

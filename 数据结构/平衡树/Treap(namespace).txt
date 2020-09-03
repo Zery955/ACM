@@ -1,0 +1,152 @@
+namespace Treap{
+	const int N = 1e5 + 5;
+	const int INF = 1e8; //根据类型修改最大值
+	typedef int Data;
+	struct node{
+		int l, r;
+		int val;
+		int cnt, size;
+		Data key;
+	}tr[N];
+	int root, np;
+	void push_up(int x)
+	{
+		tr[x].size = tr[tr[x].l].size + tr[tr[x].r].size + tr[x].cnt;
+	}
+	int newp(Data key)
+	{
+		tr[ ++ np].key = key;
+		tr[np].l = tr[np].r = 0;
+		tr[np].val = rand();
+		tr[np].cnt = 1;
+		tr[np].size = 1;
+		return np;
+	}
+	void init()
+	{
+		np = 0;
+		newp(-INF); newp(INF);
+		root = 1; tr[1].r = 2;
+		tr[root].size = 2;
+	}
+	void zig(int &x) //右旋
+	{
+		int y = tr[x].l;
+		tr[x].l = tr[y].r;
+		tr[y].r = x;
+		x = y;
+		push_up(tr[x].r), push_up(x);
+	}
+	void zag(int &x) //左旋
+	{
+		int y = tr[x].r;
+		tr[x].r = tr[y].l;
+		tr[y].l = x;
+		x = y;
+		push_up(tr[x].l), push_up(x);
+	}
+	void _insert(int &x, Data key)
+	{
+		if(x == 0) x = newp(key);
+		else if(tr[x].key == key) tr[x].cnt++;
+		else if(key > tr[x].key)
+		{
+			_insert(tr[x].r, key);
+			if(tr[tr[x].r].val > tr[x].val) 
+				zag(x);
+		}
+		else
+		{
+			_insert(tr[x].l, key);
+			if(tr[tr[x].l].val > tr[x].val);
+				zig(x);
+		}
+		push_up(x);
+	}
+	inline void insert(Data key)
+	{
+		_insert(root, key);
+	}
+	void _erase(int &x, Data key)
+	{
+		if(x == 0) return;
+		if(tr[x].key == key)
+		{
+			if(tr[x].cnt > 1) tr[x].cnt--;
+			else if(tr[x].l || tr[x].r)
+			{
+				if(tr[x].r == 0 || tr[tr[x].l].val > tr[tr[x].r].val)
+				{
+					zig(x);
+					_erase(tr[x].r, key);
+				}
+				else
+				{
+					zag(x);
+					_erase(tr[x].l, key);
+				}
+			}
+			else x = 0;
+		}
+		else if(key > tr[x].key) _erase(tr[x].r, key);
+		else _erase(tr[x].l, key);
+		push_up(x);
+	}
+	inline void erase(Data key)
+	{
+		_erase(root, key);
+	}
+	int _get_rank_by_key(int x, Data key)
+	{
+		if(x == 0) return 0; //该元素不存在
+		if(key == tr[x].key) return tr[tr[x].l].size + 1;
+		else if(key < tr[x].key) return _get_rank_by_key(tr[x].l, key);
+		else return tr[tr[x].l].size + tr[x].cnt + _get_rank_by_key(tr[x].r, key);
+	}
+	int get_rank_by_key(Data key)
+	{
+		return _get_rank_by_key(root, key) - 1; //不算哨兵
+	}
+	Data _get_key_by_rank(int x, int rank)
+	{
+		if(x == 0)
+		{
+			return INF;
+		}		
+		if(rank <= tr[tr[x].l].size) return _get_key_by_rank(tr[x].l, rank);
+		else if(rank <= tr[tr[x].l].size + tr[x].cnt) return tr[x].key;		
+		else return _get_key_by_rank(tr[x].r, rank - tr[tr[x].l].size - tr[x].cnt);		
+	}
+	Data get_key_by_rank(int rank)
+	{
+		return _get_key_by_rank(root, rank + 1); //(-INF)哨兵不算
+	}
+	Data _prev(int x, Data key) //严格小于 key 的最大数
+	{
+		if(x == 0) return -INF;
+		if(key <= tr[x].key) return _prev(tr[x].l, key);
+		else return max(tr[x].key, _prev(tr[x].r, key));
+	}
+	Data prev(Data key)
+	{
+		return _prev(root, key);
+	}
+	Data _next(int x, Data key) //严格大于 key 的最小数
+	{
+		if(x == 0) return INF;
+		if(key >= tr[x].key) return _next(tr[x].r, key);
+		else return min(tr[x].key, _next(tr[x].l, key));
+	}
+	Data next(Data key)
+	{
+		return _next(root, key);
+	}
+	void _print(int x)
+	{
+		if(x == 0) return;
+		_print(tr[x].l);
+		printf("%d ", tr[x].key);
+		_print(tr[x].r);
+	}
+	void print(){_print(root);}
+}

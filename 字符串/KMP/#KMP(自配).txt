@@ -1,0 +1,24 @@
+namespace KMP{
+	const int N = 1e6 + 5; //模式串长度
+	typedef char Data; // 串类型
+	Data *P;
+	int np;
+	int fail[N];
+	//下标从 1 开始
+	void init(Data* _P, int _np)
+	{
+		np = _np;
+		P = _P - 1;	
+	}
+	void kmp()
+	{
+		fail[1] = 0;
+		int j = 0;
+		for(int i = 2; i <= np; ++i)
+		{
+			while(j && P[j + 1] != P[i]) j = fail[j];
+			if(P[j + 1] == P[i]) j++;
+			fail[i] = j;
+		}
+	}
+}

@@ -1,0 +1,105 @@
+namespace DJS{
+	const int N = 1e6 + 5;
+	const int maxn = N - 1;
+	const ll Mod = 1e9 + 7;
+	const ll INV2 = 500000004;
+	template<typename T>inline void addmod(T &a, T b){a += b; if(a >= Mod) a -= Mod;}
+	template<typename T>inline void submod(T &a, T b){a -= b; if(a < 0) a += Mod;}
+	unordered_map<ll, ll> SMU, SSIGMA, SF;
+	ll smu[N], ssigma[N], sf[N];
+	int st[N];
+	ll psum[N];
+	vector<int> primes;
+	void init()
+	{
+		SMU.clear();
+		SSIGMA.clear();
+		SF.clear();
+		primes.clear();
+		smu[1] = 1;
+		ssigma[1] = 1;
+
+		for(int i = 2; i <= maxn; ++ i)
+		{
+			if(st[i] == 0)
+			{
+				st[i] = i;
+				smu[i] = -1;
+				ssigma[i] = psum[i] = i + 1;
+				primes.push_back(i);
+			}
+			for(auto j: primes)
+			{
+				if(1LL * i * j > maxn) break;
+				st[i * j] = j;
+				if(i % j == 0)
+				{
+					psum[i * j] = psum[i] * j + 1;
+					ssigma[i * j] = ssigma[i] / psum[i] * psum[i * j];
+					break;
+				}
+				else
+				{
+					smu[i * j] = - smu[i];
+					psum[i * j] = j + 1;
+					ssigma[i * j] =	ssigma[i] * psum[i * j];
+				}
+			}
+		}
+		for(int i = 1; i <= maxn; ++ i)
+		{
+			smu[i] = (smu[i] + Mod) % Mod;
+			sf[i] =	(sf[i - 1] + smu[i] * i % Mod) % Mod;
+			addmod(smu[i], smu[i - 1]);
+			addmod(ssigma[i], ssigma[i - 1]);
+		}
+	}
+	ll sum_mu(ll i)
+	{
+		if(i <= maxn) return smu[i];
+		if(SMU.count(i)) return SMU[i];
+		ll ans = 1;
+		for(ll l = 2, r; l <= i; l = r + 1)
+		{
+			r = i / (i / l);
+			submod(ans, (r - l + 1) % Mod * sum_mu(i / l) % Mod);
+		}
+		return SMU[i] = ans;
+	}
+	ll sum_sigma(ll i)
+	{
+		if(i <= maxn) return ssigma[i];
+		if(SSIGMA.count(i)) return SSIGMA[i];
+		ll ans = i % Mod * (i % Mod + 1) % Mod * INV2 % Mod;
+		for(ll l = 2, r; l <= i; l = r + 1)
+		{
+			r = i / (i / l);
+			submod(ans, (sum_mu(r) - sum_mu(l - 1) + Mod) % Mod * sum_sigma(i / l) % Mod);
+		}
+		return SSIGMA[i] = ans;
+	}
+	ll sum_f(ll i) // f[i] = i * mu[i];
+	{
+		if(i <= maxn) return sf[i];
+		if(SF.count(i)) return SF[i];
+		ll ans = 1;
+		for(ll l = 2, r; l <= i; l = r + 1)
+		{
+			r = i / (i / l);
+			submod(ans,(r - l + 1) % Mod * ((l + r) % Mod) % Mod * sum_f(i / l) % Mod * INV2 % Mod);
+		}
+		return SF[i] = ans;
+	}
+	ll sum_sigma_i_j(ll n) // sum_{i = 1} ^{n} sum_{j = 1} ^{n} sigma(i * j);
+	{
+		ll ans = 0;
+		for(ll l = 1, r; l <= n; l = r + 1)
+		{
+			r = n / (n / l);
+			ll c = sum_sigma(n / l);
+			c = c * c % Mod;
+			addmod(ans, (sum_f(r) - sum_f(l - 1) + Mod) % Mod* c % Mod);
+		}
+		return ans;
+	}
+}

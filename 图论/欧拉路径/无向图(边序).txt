@@ -1,0 +1,71 @@
+namespace Euler{
+	const int N = 1e5 + 5;
+	const int M = 2e5 + 5;
+	int head[N], to[M], nxt[M], num;
+	int n, s, t;
+	int d[N];
+	bool vis[M];
+	vector<int> path;
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++ i)
+		{
+			head[i] = 0;
+			d[i] = 0;
+		}
+		num = 1;
+		path.clear();
+	}
+	void addedge(int u, int v)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		vis[num] = 0;
+		head[u] = num;
+		d[v] ++;
+	}
+	void dfs(int u)
+	{
+		
+		for(int e = head[u]; e; e = head[u])
+		{
+			int v = to[e];
+			head[u] = nxt[e];
+			if(vis[e]  || vis[e ^ 1]) continue;
+			vis[e] = 1;
+			int dir = e % 2 == 0 ? 1 : -1;
+			dfs(v);
+			path.push_back(e / 2 * dir);
+		}
+	}
+	void euler()
+	{
+		s = 1; t = -1;
+		while(d[s] == 0 && s < n) s ++;
+		for(int i = 1; i <= n; ++i)
+		{
+			if(d[i] & 1)
+			{
+				s = i;
+				break;
+			}
+		}
+		dfs(s);
+		reverse(path.begin(), path.end());
+		if(path.size())
+		{
+			int e = path.back();
+			t = e > 0 ? to[2 * e] : to[ - 2 * e + 1];
+		}
+		else t = s;
+	}
+	bool is_euler_path()
+	{
+		return path.size() == num / 2;
+	}
+	bool is_euler_circle()
+	{
+		return is_euler_path() && s == t;
+	}
+}

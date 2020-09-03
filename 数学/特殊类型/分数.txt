@@ -1,0 +1,54 @@
+struct Fraction{
+	typedef long long ll;
+	ll a, b;
+	ll sign(ll x){return x > 0 ? 1LL : -1LL;}
+	Fraction() : a(0), b(1){}
+	Fraction(ll x) : a(x), b(1){}
+	Fraction(const Fraction& f) : a(f.a) , b(f.b){}
+	Fraction(ll x, ll y)
+	{
+		ll g = __gcd(abs(x), abs(y));
+		a = x / g * sign(y);
+		if(a == 0) b = 1;
+		else b = abs(y) / g;
+	}
+	ll denominator(){return b;} //·ÖÄ¸
+	ll numerator(){return a;}	//·Ö×Ó
+	Fraction operator + (const Fraction & f)
+	{
+		ll g = __gcd(b, f.b);
+		return Fraction(f.b / g * a + b / g * f.a ,b / g * f.b);
+	}
+	Fraction operator - (const Fraction & f)
+	{
+		ll g = __gcd(b, f.b);
+		return Fraction(f.b / g * a - b / g * f.a ,b / g * f.b);
+	}
+	Fraction operator * (const Fraction & f)
+	{
+		ll g1 = __gcd(a, f.b);
+		ll g2 = __gcd(f.a, b);
+		return Fraction(a / g1 * f.a / g2, b / g2 * f.b / g1);
+	}
+	Fraction operator / (const Fraction & f)
+	{
+		return (*this) * Fraction(f.b, f.a);
+	}
+	bool operator < (const Fraction & f)
+	{
+		return a * f.b < f.a * b;
+	}
+	bool operator <= (const Fraction & f)
+	{
+		return (*this == f) || (*this < f);
+	}
+	bool operator == (const Fraction & f)
+	{
+		return a == f.a && b == f.b;
+	}
+	void print()
+	{
+		if(a == 0) printf("0/1");
+		else printf("%lld/%lld",a, b);
+	}
+};

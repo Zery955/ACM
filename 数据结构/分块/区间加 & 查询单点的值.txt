@@ -1,0 +1,44 @@
+namespace Block{
+	typedef long long ll;
+	const int N = 5e4 + 5;
+	int SIZE; //块的大小
+	int blocknum[N];
+	ll a[N];// 线性维护的数据
+	int n;
+	struct node{
+		//块状维护的数据
+		ll mark;
+	}b[(int)(sqrt(N)) + 10];
+	void init(int _n)
+	{
+		n = _n;
+		SIZE = sqrt(n);
+		for(int i = 1; i <= n; ++i) //块编号初始化
+		{
+			blocknum[i] = (i - 1) / SIZE + 1;
+			a[i] = 0;
+		}
+		for(int i = 1; i <= SIZE + 1; ++i) //块内数据初始化
+		{
+			b[i].mark = 0; 
+		}
+	}
+	void modify(int l, int r, ll c)
+	{
+		if(blocknum[l] == blocknum[r]) // 同块
+		{
+			for(int i = l; i <= r; ++i) a[i] += c;
+		}
+		else //多块
+		{
+			for(int i = l; blocknum[i] == blocknum[l]; ++i) a[i] += c;
+			for(int i = r; blocknum[i] == blocknum[r]; --i) a[i] += c;
+			for(int i = blocknum[l] + 1; i <= blocknum[r] - 1; ++i) b[i].mark += c;
+		}
+	}
+	ll query(int x)
+	{
+		int ib = blocknum[x];
+		return a[x] + b[ib].mark;
+	}
+}

@@ -1,0 +1,60 @@
+namespace Tire{
+	const int N = 1e4 + 5;
+	const int M = 26;
+	int np;
+	int ch[N * M][M];
+	int tag[N * M]; //单词标记
+	int newp()
+	{
+		++np;
+		for(int i = 0; i < M; ++i) ch[np][i] = 0;
+		tag[np] = 0;
+		return np;
+	}
+	int id(char c){return c - 'a';}
+	void init()
+	{
+		np = 0;
+		for(int i = 0; i < M; ++i) ch[0][i] = 0;
+	}
+	void insert(char *s, int n)
+	{
+		// 注意下标不是从0开始
+		int cur = 0;
+		//printf("%s --ok", s + 1);
+		for(int i = 1; i <= n; ++i)
+		{
+			
+			int c = id(s[i]);
+			if(ch[cur][c] == 0) ch[cur][c] = newp();
+			cur = ch[cur][c];
+		}
+		tag[cur] ++;
+	}
+	void dfs(int u, vector<char> &a)
+	{
+		if(tag[u])
+			for(int i = 1; i <= tag[u]; ++i)
+			{
+				for(auto c : a)
+				{
+					printf("%c", c);
+				}
+				printf("\n");
+			}
+		for(int v = 0; v < M; ++v)
+		{
+			if(ch[u][v])
+			{			
+				a.push_back('a' + v);
+				dfs(ch[u][v], a);
+				a.pop_back();
+			}
+		}
+	}
+	void print_sort()
+	{
+		vector<char> a;
+		dfs(0, a);
+	}
+}

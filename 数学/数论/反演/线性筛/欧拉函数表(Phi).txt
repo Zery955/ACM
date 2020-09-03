@@ -1,0 +1,30 @@
+namespace Phi{
+	const int N = 1e6 + 5;
+	int phi[N], st[N];
+	vector<int> primes;
+	void init()
+	{
+		phi[1] = 1;
+		int maxn = N - 1;
+		for(int i = 2; i <= maxn; ++ i)
+		{
+			if(st[i] == 0)
+			{
+				primes.push_back(i);
+				st[i] = i;
+				phi[i] = i - 1;
+			}	
+			for(auto j: primes)
+			{
+				if(1LL * i * j > maxn) break;
+				st[i * j] = j;
+				if(i % j == 0)
+				{
+					phi[i * j] = phi[i] * j;
+					break;
+				}
+				else  phi[i * j] = phi[i] * phi[j];
+			}
+		}
+	}
+}

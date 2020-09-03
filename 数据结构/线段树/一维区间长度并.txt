@@ -1,0 +1,96 @@
+namespace SegmentTree{
+	typedef long long ll;
+	vector<double> va;
+	vector<pair<double, double> > segment;
+	struct Node{
+		int l, r;
+		Node(){}
+		Node(int _l, int _r)
+		{
+			l = _l;
+			r = _r;
+			ls = NULL;
+			rs = NULL;
+			tlen = 0.0;
+			cover = 0;
+		}
+		Node *ls, *rs;
+		double tlen;
+		bool cover;
+	};
+	Node *RT;
+	void init()
+	{
+		va.clear();
+		segment.clear();
+		RT = NULL;
+	}
+	void addsegment(double l, double r)
+	{
+		segment.push_back({l, r});
+		va.push_back(l);
+		va.push_back(r);
+	}
+	void discrete() 
+	{
+		/* 
+		 * 区间离散化
+		 * 区间化点
+		 */
+		sort(va.begin(), va.end());
+		va.erase(unique(va.begin(), va.end()), va.end());
+		for(auto &i: segment)
+		{
+			//printf("(%lf, %lf)\n", i.first, i.second);
+			i.first = lower_bound(va.begin(), va.end(), i.first) - va.begin() + 1;
+			i.second = lower_bound(va.begin(), va.end(), i.second) - va.begin() + 1 - 1;
+		}
+	}	
+	void push_up(Node *rt, const Node *ls, const Node *rs)
+	{
+		rt->tlen = 0.0;
+		rt->tlen += ls->cover == 1 ? va[ls->r + 1 - 1] - va[ls->l - 1] : ls->tlen;
+		rt->tlen += rs->cover == 1 ? va[rs->r + 1 - 1] - va[rs->l - 1] : rs->tlen;
+	}
+	void build(int l, int r, Node *&rt = RT)
+	{
+		if(rt == NULL) rt = new Node(l, r);
+		if(l == r)
+		{
+			rt->tlen = 0.0;
+			return;
+		}
+		int mid = rt->l + rt->r >> 1;
+		build(l, mid, rt->ls);
+		build(mid + 1, r, rt->rs);
+		push_up(rt, rt->ls, rt->rs);
+	}
+	void modify(int x, int y, Node *rt = RT)
+	{
+		if(x > y) return;
+		if(x <= rt->l && rt->r <= y)
+		{
+			rt->cover = 1;
+			return;
+		}
+		int mid = rt->l + rt->r >> 1;
+		if(x <= mid) modify(x, y, rt->ls);
+		if(y > mid) modify(x, y, rt->rs);
+		push_up(rt, rt->ls, rt->rs);
+	}
+	Node query(int x, int y, Node *rt = RT)
+	{
+		if(x <= rt->l && y <= rt->r) return *rt;
+		int mid = rt->l + rt->r >> 1;
+		if(y <= mid) return query(x, y, rt->ls);
+		else if(x > mid) return query(x, y, rt->rs);
+		else
+		{
+			Node _rt;
+			Node _ls = query(x, y, rt->ls);
+			Node _rs = query(x, y, rt->rs);
+			push_up(&_rt, &_ls, &_rs);
+			return _rt;
+		}
+	}
+}

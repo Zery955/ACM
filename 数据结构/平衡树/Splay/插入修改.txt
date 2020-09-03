@@ -1,0 +1,102 @@
+namespace Splay{
+	const int N = 2e5 + 5;
+	typedef long long ll;
+	const ll INF = 1e8;
+	ll* a; int n;
+	int rt, np;
+	struct node{
+		int ch[2];
+		int cnt;
+		int sz;
+		int val;
+		int fa;
+	}t[N];
+	inline void push_up(int u)
+	{
+		if(u)
+		t[u].sz = t[t[u].ch[0]].sz + t[t[u].ch[1]].sz + t[u].cnt;
+	}
+	inline bool get(int x){return x == t[t[x].fa].ch[1];}
+	inline void newp(int ls, int rs, int cnt, int sz, int val, int fa)
+	{
+		np ++;
+		t[np].ch[0] = ls;
+		t[np].ch[1] = rs;
+		t[np].cnt = cnt;
+		t[np].sz = sz;
+		t[np].val = val;
+		t[np].fa = fa;
+	}
+	inline void rotate(int x)
+	{
+		int y = t[x].fa, z = t[y].fa, son = get(x);
+		t[y].ch[son] = t[x].ch[son ^ 1];
+		t[t[x].ch[son ^ 1]].fa = y;
+		t[x].ch[son ^ 1] = y;
+		t[y].fa = x;
+		t[x].fa = z;
+		if(z) t[z].ch[y == t[z].ch[1]] = x;
+		push_up(y);
+		push_up(x);
+	}
+	void splay(int u, int v = 0)
+	{
+		for(int f = t[u].fa; (f = t[u].fa) != v; rotate(u))
+		{
+			if(t[f].fa != v) rotate(get(u) == get(f) ? f : u);
+		}
+		if(v == 0) rt = u;
+	}
+	int kth(int x) // 查找中序第x个数
+	{
+		int u = rt;
+		while(1)
+		{
+			if(x <= t[t[u].ch[0]].sz) u = t[u].ch[0];
+			else
+			{
+				x -= t[t[u].ch[0]].sz + 1;
+				if(x == 0) return u;
+				u = t[u].ch[1];
+			}
+		}
+	}
+	inline void insert(int pos, int val)// 在第pos个数后面插入 val
+	{
+		if(rt == 0)
+		{
+			newp(0, 0, 1, 1, val, 0);
+			rt = np;
+			return;
+		}
+		if(pos == 0)
+		{
+			int u = rt;
+			while(t[u].ch[0]) u = t[u].ch[0];
+			newp(0, 0, 1, 1, val, u);
+			t[u].ch[0] = np;
+			push_up(u);
+			splay(np);
+			return;
+		}
+		int u = kth(pos);
+		splay(u);
+		newp(0, t[rt].ch[1], 1, 1, val, rt);
+		if(t[rt].ch[1]) t[t[rt].ch[1]].fa = np;
+		t[rt].ch[1] = np;
+		push_up(np);
+		push_up(rt);
+	}
+	void init()
+	{
+		rt = 0;
+		np = 0;
+	}
+	void print(int u = rt)
+	{
+		if(u == 0) return;
+		print(t[u].ch[0]);
+		if(t[u].val != INF) printf("%d ", t[u].val);
+		print(t[u].ch[1]);
+	}
+}

@@ -1,0 +1,36 @@
+namespace D{
+	const int N = 1e6 + 5;
+	int d[N], st[N], pk[N];
+	vector<int> primes;
+	void init()
+	{
+		int maxn = N - 1;
+		d[1] = 1;
+		for(int i = 2; i <= maxn; ++ i)
+		{
+			if(st[i] == 0)
+			{
+				st[i] = i;
+				d[i] = 2;
+				primes.push_back(i);
+				pk[i] = 1;
+			}
+			for(auto j : primes)
+			{
+				if(1LL * i * j > maxn) break;
+				st[i * j] = j;
+				if(i % j == 0)
+				{
+					pk[i * j] = pk[i] + 1;
+					d[i * j] = d[i] / (pk[i] + 1) * (pk[i * j] + 1);
+					break;
+				}
+				else 
+				{
+					pk[i * j] = 1;
+					d[i * j] = d[i] * d[j];
+				}
+			}
+		}
+	}
+}

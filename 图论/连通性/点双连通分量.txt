@@ -1,0 +1,87 @@
+namespace V_DCC{
+	const int N = 1e5 + 5;
+	const int M = 1e5 + 5;
+	typedef long long Data;
+	int n;
+	int head[N], nxt[2 * M], to[2 * M], num;
+	Data cap[2 * M];
+	int dfn[N], low[N], idfn;
+	int dcc[N], idcc;
+	bool is_cut[N];
+	stack<int> stk;
+	vector<int> dccp[N];
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0 ; i <= n; ++i)
+		{
+			head[i] = 0;
+			dfn[i] = 0;
+			is_cut[i] = 0;
+		}
+		idcc = 0;
+		num = 0;
+		idfn = 0;
+	}
+	void addedge(int u, int v, Data c = 1)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	void tarjan(int u, int root)
+	{
+		dfn[u] = low[u] = ++idfn;
+		if(u == root && head[u] == 0)
+		{
+			dccp[++idcc].clear();
+			dccp[idcc].push_back(u);
+			return;
+		}
+		stk.push(u);
+		int cnt = 0;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(dfn[v] == 0)
+			{
+				tarjan(v, root);
+				low[u] = min(low[v], low[u]);
+				if(dfn[u] <= low[v])
+				{
+					++cnt;
+					if(u != root || cnt > 1) is_cut[u] = 1;
+					++idcc;
+					int temp;
+						dccp[idcc].clear();
+					do{
+						temp = stk.top(); stk.pop();
+						dcc[temp] = idcc;
+						dccp[idcc].push_back(temp);
+					}while(temp != v);
+						dccp[idcc].push_back(u);
+				}
+			}
+			else low[u] = min(low[u], dfn[v]);
+		}
+	}
+	void rebuild()
+	{
+		for(int i = 1; i <= n; ++i)
+			if(dfn[i] == 0)
+			{
+				tarjan(i, i);
+			}
+		for(int i = 1; i <= idcc; ++i)
+		{
+			for(auto u : dccp[i])
+			{
+				if(is_cut[u]) //建图方案为点双编号向点双内的所有割点连边
+				{
+					//_addedge(i, u), _addedge(u, i);
+				}
+			}
+		}
+	}
+}

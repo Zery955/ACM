@@ -1,0 +1,36 @@
+namespace Sigma{
+	const int N = 1e6 + 5;
+	ll st[N], sigma[N], psum[N];// sigma为约数和函数, psum为最小质因数的产生的影响
+	vector<ll> primes;
+	void init()
+	{
+		primes.clear();
+		sigma[1] = 1;
+		int maxn = N - 1;
+		for(int i = 2; i <= maxn; ++ i)
+		{
+			if(st[i] == 0)
+			{
+				st[i] = i;
+				sigma[i] = psum[i] = 1 + i;
+				primes.push_back(i);
+			}
+			for(auto j : primes)
+			{
+				if(j * i > maxn) break;
+				st[i * j] = j;
+				if(i % j == 0)
+				{
+					psum[i * j] = psum[i] * j + 1;
+					sigma[i * j] = sigma[i] / psum[i] * psum[i * j];
+					break;
+				}
+				else
+				{
+					psum[i * j] = j + 1;
+					sigma[i * j] = sigma[i] * psum[j];
+				}
+			}
+		}
+	}
+}

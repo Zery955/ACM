@@ -1,0 +1,34 @@
+namespace Combination{
+	typedef long long ll;
+	ll ksm(ll a, ll k, ll Mod)
+	{
+		ll res = 1;
+		while(k)
+		{
+			if(k & 1) (res *= a) %= Mod;
+			(a *= a) %= Mod;
+			k >>= 1;
+		}
+		return res;
+	}
+	ll C(ll n, ll m, ll Mod)
+	{
+		if(n < 0 || m < 0 || n < m) return 0;
+		ll res = 1;
+		for(int i = 1, j = n; i <= m; ++i, --j)	
+		{
+			res = res * j % Mod;
+			res = res * ksm(i, Mod - 2, Mod) % Mod;
+		}
+		return res;
+	}
+
+	ll Lucas(ll n, ll m, ll Mod)
+	{
+		if(n < 0 || m < 0 || n < m) return 0;
+		if(n < Mod && m < Mod) return C(n, m, Mod);
+		return Lucas(n / Mod, m / Mod, Mod) * C(n % Mod, m % Mod, Mod) % Mod;
+	}
+}
+#define C(n, m, p) Combination :: Lucas(n, m, p)
+

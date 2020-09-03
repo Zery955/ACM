@@ -1,0 +1,60 @@
+namespace SPFA_loop{
+	const int N = 1e5 + 5;
+	const int M = 1e5 + 5;
+	typedef long long Data;
+	int n;
+	int head[N], to[2 * M], nxt[2 * M], num;
+	Data cap[2 * M];
+	bool st[N];
+	int cnt[N];
+	Data dis[N];
+	queue<int> q;
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 1; i <= n; ++i)
+		{
+			head[i] = 0;
+			st[i] = 0;
+			cnt[i] = 0;
+			dis[i] = 0;
+		}
+		num = 0;
+	}
+	void addedge(int u, int v, Data c)
+	{
+		nxt[++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	bool spfa()
+	{
+		for(int i = 1; i <= n; ++i)
+		{
+			st[i] = 1;
+			q.push(i);
+		}
+		while(q.size())
+		{
+			int u = q.front(); q.pop();
+			st[u] = 0;
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				if(dis[v] > dis[u] + cap[e])
+				{
+					dis[v] = dis[u] + cap[e];
+					cnt[v] = cnt[u] + 1;
+					if(cnt[v] >= n) return 1;
+					if(st[v] == 0)
+					{
+						q.push(v);
+						st[v] = 1;
+					}
+				}
+			}
+		}
+		return 0;
+	}
+}

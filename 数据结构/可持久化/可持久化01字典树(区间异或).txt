@@ -1,0 +1,63 @@
+namespace Trie{
+	const int N = 6e5 + 5; //版本数量
+	const int M = 24;
+	int ch[N * M][2];
+	int root[N];
+	int idn;
+	int a[N], n;
+//******************** Trie树 节点数据 ********************
+	int maxid[N * M];
+//*********************************************************
+	int newp()
+	{
+		++idn;
+		for(int i = 0; i < 2; ++i) ch[idn][i] = 0;
+		maxid[idn] = 0;
+		return idn;
+	}
+	void insert(int i, int k, int p, int q)
+	{
+		if(k == -1)
+		{
+			maxid[q] = i;
+			return;
+		}
+		int bit = a[i] >> k & 1;
+		if(p) ch[q][bit ^ 1] = ch[p][bit ^ 1];
+		ch[q][bit] = newp();
+		insert(i, k - 1, ch[p][bit], ch[q][bit]);
+		maxid[q] = max(maxid[ch[q][0]], maxid[ch[q][1]]);
+	}
+	inline void init()
+	{
+		idn = 0;
+		n = 0;
+		maxid[0] = -1; //失配不产生影响
+		root[0] = newp();
+		a[0] = 0;
+		insert(0, M - 1, 0, root[0]);
+	}
+//******************** 向数组最后插入一个数 *************************
+	void insert(int x)
+	{
+		a[++ n] = x;
+		root[n] = newp();
+		insert(n, M - 1, root[n - 1], root[n]);
+	}
+	int _query(int rt, int x, int l)
+	{
+		int cur = rt;
+		for(int i = M - 1; i >= 0; --i)
+		{
+			int bit = x >> i & 1;
+			if(maxid[ch[cur][bit ^ 1]] >= l) cur = ch[cur][bit ^ 1];
+			else cur = ch[cur][bit];
+		}
+		return x ^ a[maxid[cur]];
+	}
+//******************** 从查询数组[l, r]之间取数和 x异或的最大值 ********************
+	int query(int l, int r, int x)
+	{
+		return _query(root[r - 1], x , l - 1);
+	}
+}

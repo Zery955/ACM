@@ -1,0 +1,31 @@
+namespace LIS{
+	typedef long long Data;
+	const int N = 1e5 + 5;
+	Data a[N]; //序列
+	Data b[N]; //长度为 [i] 的 LIS 的最小结尾是 b[i]
+	int n;
+	int len;
+	// 自行完成读入
+	void init(int _n)
+	{
+		n = _n;
+	}
+	int lis()
+	{
+		len = 1;
+		b[1] = a[1];
+		for(int i = 2; i <= n; ++i)
+		{
+			if(a[i] > b[len])
+			{
+				b[ ++ len] = a[i];
+			}
+			else
+			{
+				int id = lower_bound(b + 1, b + len + 1, a[i]) - b;
+				b[id] = a[i];
+			}
+		}
+		return len;
+	}
+}

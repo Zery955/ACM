@@ -1,0 +1,54 @@
+namespace Combination{
+	typedef long long ll;
+	const int N = 1e5 + 1000;
+	bool st[N];
+	int primes[N], cnt;
+	void init()
+	{
+		for(int i = 2; i < N; ++i)
+		{
+			if(st[i] == 0) primes[++ cnt] = i;
+			for(int j = 1; i < N / primes[j]; ++j)
+			{
+				st[primes[j] * i] = 1;
+				if(i % primes[j] == 0) break;
+			}
+		}
+	}
+	ll ksm(ll a, ll k, ll Mod)
+	{
+		ll res = 1;
+		while(k)
+		{
+			if(k & 1) (res *= a) %= Mod;
+			(a *= a) %= Mod;
+			k >>= 1;
+		}
+		return res;
+	}
+	ll getp(ll n, ll p)
+	{
+		ll res = 0;
+		while(n)
+		{
+			res += n / p;
+			n /= p;			
+		}
+		return res;
+	}
+	ll C(ll n, ll m, ll Mod)
+	{
+		if(n < 0 || m < 0 || n < m) return 0;
+		ll res = 1;
+		for(int i = 1; i <= cnt; ++i)
+		{
+			ll pn, pm, pnm;
+			pn = getp(n, primes[i]);
+			pm = getp(m, primes[i]);
+			pnm = getp(n - m, primes[i]);
+			(res *= ksm(primes[i], pn - pm - pnm, Mod)) %= Mod;
+		}
+		return res;	
+	}
+}
+#define C(n, m) Combination :: C(n, m)

@@ -1,0 +1,23 @@
+inline int sgn(double d){if(fabs(d) < eps) return 0;if(d > 0) return 1;return -1;}
+struct Point{
+	double x, y;
+	Point():x(0.0), y(0.0){}
+	Point(double a, double b = 0.0): x(a), y(b){}
+	Point(const Point& p): x(p.x), y(p.y){}
+	Point operator + (const Point& a){return {x + a.x, y + a.y};}
+	Point operator - (const Point& a){return {x - a.x, y - a.y};}
+	double operator * (const Point& a){return x * a.x + y * a.y;}
+	double operator ^ (const Point& a){return x * a.y - y * a.x;}
+	bool operator == (const Point& p){return sgn(x - p.x) == 0 && sgn(y - p.y) == 0;}
+	bool operator < (const Point &p) const{
+		if(sgn(x - p.x) == 0) 
+			return sgn(y - p.y) == -1;
+		return sgn(x - p.x) == -1;
+	}
+}typedef Vector;
+double distance(const Point &a, const Point &b) 
+{
+	double x = a.x - b.x;
+	double y = a.y - b.y;
+	return sqrt(x * x + y * y);
+}

@@ -1,0 +1,43 @@
+namespace Factorial{
+	const int N = 1e6 + 5;
+	int n;
+	bool st[N];
+	vector<int> primes;
+	void init(int _n)
+	{
+		n = _n;
+		fill(st, st + n + 1, 0);
+		primes.clear();
+	}
+	int get(int x)
+	{
+		int _n = n;
+		int res = 0;
+		while(_n)
+		{
+			_n /= x;
+			res += _n;
+		}
+		return res;
+	}
+	void factorial(vector<pair<int, int> > &res)
+	{
+		for(int i = 2; i <= n; ++i)
+		{
+			if(st[i] == 0) primes.push_back(i);
+			for(auto j : primes)
+			{
+				if((ll)i * j > n) break;
+				st[i * j] = 1;
+				if(i % j == 0) break;
+			}
+		}
+		res.clear();
+		for(auto i : primes)
+		{
+			int k = get(i);
+			if(k == 0) break;
+			res.push_back({i, k});
+		}
+	}
+}

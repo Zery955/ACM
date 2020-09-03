@@ -1,0 +1,49 @@
+namespace Topsort{
+	const int N = 1e5 + 5;
+	const int M = 1e5 + 5;
+	typedef long long Data;
+	int n;
+	int head[N], to[2 * M], nxt[2 * M], num;
+	Data cap[N];
+	int din[N];
+	int q[N];
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++i)
+		{
+			head[i] = 0;
+			din[i] = 0;
+		}
+		num = 0;
+	}
+	void addedge(int u, int v, Data c = 1)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+		din[v]++;
+	}
+	void topsort()
+	{
+		int hh = 0, tt = -1;
+		for(int i = 1; i <= n; ++i)
+			if(din[i] == 0) q[++ tt] = i;
+		while(hh <= tt)
+		{
+			int u = q[hh ++];
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				if(-- din[v] == 0)
+					q[++ tt] = v;
+			}
+		}
+	}
+	void cal()
+	{
+		
+	}
+	
+}

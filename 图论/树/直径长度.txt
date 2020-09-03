@@ -1,0 +1,90 @@
+namespace Diameter{
+	const int N = 1e5 + 10;
+	typedef int Data;
+	int n;
+	int head[N], to[2 * N], nxt[2 * N], num;
+	Data cap[2 * N];
+//******************** bfs 数据 ********************
+	int pre[N];
+	Data dis[N];
+	bool vis[N];
+//******************** 树dp数据 ********************
+	Data f[N];
+//********************
+	void init(int _n)
+	{
+		n = _n;
+		for(int i = 0; i <= n; ++i)
+		{
+			head[i] = 0;
+		}
+		num = 1;
+	}
+	void addedge(int u, int v, Data c = 1)
+	{
+		nxt[ ++ num] = head[u];
+		to[num] = v;
+		cap[num] = c;
+		head[u] = num;
+	}
+	int	bfs(int s)
+	{
+		memset(vis, 0, sizeof vis);
+		vis[s] = 1;
+		dis[s] = 0;
+		queue<int> q;
+		q.push(s);
+		int res = s;
+		while(q.size())
+		{
+			int u = q.front(); q.pop();
+			res = u;
+			for(int e = head[u]; e; e = nxt[e])
+			{
+				int v = to[e];
+				if(vis[v] == 0)
+				{
+					vis[v] = 1;
+					dis[v] = dis[u] + 1;
+					pre[v] = e ^ 1;
+					q.push(v);
+				}
+			}
+		}
+		return res;
+	}
+	void travel(int U, int V)
+	{
+		for(int u = U; u != V; u = to[pre[u]])
+		{
+			int e = pre[u];
+			
+		}
+	}
+	Data diameter() //两次bfs计算直径
+	{
+		int p1 = bfs(1);
+		int p2 = bfs(p1);
+		//travel(p2, p1); //遍历直径的边
+		return dis[p2];
+	}
+	void dp(int u, int fa, Data& d)
+	{
+		f[u] = 0;
+		for(int e = head[u]; e; e = nxt[e])
+		{
+			int v = to[e];
+			if(v == fa) continue;
+			dp(v, u, d);
+			d = max(d, f[u] + cap[e] + f[v]);
+			f[u] = max(f[u], cap[e] + f[v]);
+		}
+	}
+//******************** 树dp (在树边存在负数的时候使用) ********************
+	Data diameter(int u, int fa) 
+	{	
+		Data res = 0;
+		dp(u, fa, res);
+		return res;
+	}
+}

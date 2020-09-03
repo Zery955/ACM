@@ -1,0 +1,37 @@
+namespace Section_primes{
+	const int N = 1e6 + 5;
+	bool _st[N], st[N];
+	vector<int> primes;
+	long long l, r;
+	void init(int _l, int _r)
+	{
+		if(_l == 1) _l++;
+		l = _l;
+		r = _r;
+		fill(st, st + r - l + 1, 0);
+		primes.clear();
+	}
+	void section_primes(vector<int> &res)
+	{
+		ll n = sqrt(r) + 1;
+		for(ll i = 2; i <= n; ++i)
+		{
+			if(_st[i] == 0) primes.push_back(i);
+			for(auto j : primes)
+			{
+				if((ll)j * i > n) break;
+				_st[j * i] = 1;
+				if(i % j == 0) break;
+			}
+		}
+		for(auto i : primes)
+		{
+			ll j = max((l + i - 1) / i * i, (ll)i * 2);
+			for(; j <= r; j += i)
+				st[j - l] = 1;
+		}
+		res.clear();
+		for(int i = 0; i <= r - l; ++i) if(st[i] == 0)
+			res.push_back(i + l);
+	}
+}

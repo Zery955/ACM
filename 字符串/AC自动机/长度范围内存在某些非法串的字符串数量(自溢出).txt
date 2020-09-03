@@ -1,0 +1,142 @@
+namespace ACAM{
+	const int N = 5e4 + 5; // Trie 节点数目
+	const int M = 26; // 字符集数目
+	typedef char Data;
+	int ch[N][M];
+	int fail[N];
+	int np;
+	int q[N]; //bfs
+//********** Trie 节点维护的信息 ******************
+	bool tag[N];
+
+//*************************************************
+	struct Matrix{
+		typedef unsigned long long Data;
+		const static int N = 35;
+		Data m[N][N];
+		int n;
+		Matrix(int _n = N){
+			n = _n;
+			for(int i = 0; i < n; ++i)
+				for(int j = 0; j < n; ++j)
+					m[i][j] = 0;
+		}
+		void unit()
+		{
+			for(int i = 0; i < n; ++i)
+				for(int j = 0; j < n; ++j)
+					if(i == j) m[i][j] = 1;
+						else m[i][j] = 0;
+		}
+		Data* operator [](int r)
+		{
+			return m[r];
+		}
+		Matrix operator *(const Matrix& a)
+		{
+			Matrix res(n);
+			for(int i = 0; i < n; ++i)
+				for(int j = 0; j < n; ++j)
+					for(int k = 0; k < n; ++k)
+					{
+						res.m[i][j] += m[i][k] * a.m[k][j];
+					}
+			return res;
+		}
+		Matrix operator ^(long long k)
+		{
+			Matrix a(*this);
+			Matrix res(n);
+			res.unit();
+			while(k)
+			{
+				if(k & 1) res = res * a;
+				a = a * a;
+				k >>= 1;
+			}
+			return res;
+		}
+		void print()
+		{
+			for(int i = 0; i < n; ++ i)
+			{
+				for(int j = 0; j < n; ++ j)
+					printf("%lld ", m[i][j]);
+				puts("");
+			}
+		}
+	};
+	int newp() //动态 Trie 开点 + 初始化
+	{
+		for(int i = 0; i < M; ++i)
+		{
+			ch[np][i] = 0;
+		}	
+		fail[np] = 0;
+		tag[np] = 0;
+		return np ++;
+	}
+	void init() // 0 号点为虚拟点
+	{
+		np = 0;
+		newp();		
+	}
+	inline int id(char c)
+	{
+		return c - 'a';
+	}
+	void insert(char* s, int n)
+	{
+		int cur = 0;
+		for(int i = 0; i < n; ++i)
+		{
+			int c = id(s[i]);
+			if(ch[cur][c] == 0) ch[cur][c] = newp();
+			cur = ch[cur][c];
+		}
+	//*********** Trie 插入后的节点数据更新 ****************
+		tag[cur] = 1;
+	//******************************************************
+	}
+	void build_fail()
+	{
+		int hh = 0, tt = -1;
+		for(int i = 0; i < M; ++i)
+			if(ch[0][i]) q[++tt] = ch[0][i];
+		while(hh <= tt)
+		{
+			int u = q[hh++];
+			for(int i = 0; i < M; ++i)
+			{
+				if(tag[fail[u]] == 1) tag[u] = 1; //子标记传递
+				if(ch[u][i] == 0) ch[u][i] = ch[fail[u]][i];
+				else
+				{
+					q[++tt] = ch[u][i];
+					fail[ch[u][i]] = ch[fail[u]][i];
+				}
+			}
+		}
+	}
+	unsigned long long matrix(long long k) //记得先build_fail();
+	{
+		Matrix Ma(np + 1);
+		for(int i = 0; i < np; ++ i)
+		{
+			if(tag[i]) continue;
+			for(int j = 0; j < M; ++ j) if(tag[ch[i][j]] == 0)
+				Ma[i][ch[i][j]] ++;
+		}
+		
+		for(int i = 0; i <= np; ++ i) Ma[i][np] = 1;
+		Ma = Ma ^ (k + 1);
+		Matrix tot(2), trans(2);
+		tot[0][0] = M; tot[0][1] = M;
+		trans[0][0] = M;
+		trans[0][1] = M;
+		trans[1][1] = 1;
+		trans = trans ^ (k - 1);
+		tot = tot * trans;
+		return tot[0][1] - (Ma[0][np] - 1);
+	}
+}

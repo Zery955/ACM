@@ -1,0 +1,15 @@
+void push3(vector<int> &a, int i, int n)
+{
+	a.clear();
+	a.push_back(i);
+	if(i & 1)
+	{
+		a.push_back((3 * n + 2 - i) / 2);
+		a.push_back((6 * n + 1 - i) / 2);
+	}
+	else
+	{		
+		a.push_back((4 * n + 2 - i) / 2);
+		a.push_back((5 * n + 1 - i) / 2);
+	}
+}
